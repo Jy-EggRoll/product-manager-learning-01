@@ -1,0 +1,131 @@
+@startuml 角色与智能体协作图
+skinparam backgroundColor #f8fafc
+skinparam shadowing false
+skinparam handwritten false
+
+skinparam actor {
+  BackgroundColor #3b82f6
+  BorderColor #1d4ed8
+  FontColor #ffffff
+}
+
+skinparam boundary {
+  BackgroundColor #10b981
+  BorderColor #059669
+  FontColor #ffffff
+}
+
+skinparam control {
+  BackgroundColor #8b5cf6
+  BorderColor #6d28d9
+  FontColor #ffffff
+}
+
+skinparam database {
+  BackgroundColor #f59e0b
+  BorderColor #d97706
+  FontColor #ffffff
+}
+
+skinparam note {
+  BackgroundColor #fffbeb
+  BorderColor #f59e0b
+  FontColor #92400e
+}
+
+title
+  <b><size:18>角色与智能体协作关系</size></b>
+  <size:12>总部运营 + 门店店长 + 数字副店长</size>
+end title
+
+actor "总部运营专员" as HQ_OPERATOR
+actor "门店店长/店员" as STORE_STAFF
+actor "会员用户" as MEMBER
+
+boundary "运营控制台" as HQ_PORTAL
+boundary "店长工作台" as STORE_PORTAL
+boundary "企微侧边栏" as WECOM_SIDEBAR
+boundary "会员小程序" as MEMBER_MINIAPP
+
+control "数字副店长智能体" as AGENT
+note right of AGENT
+  <size:12><b>核心能力：</b></size>
+  * 实时感知外部信号
+  * 智能匹配会员-药品
+  * 自动生成活动方案
+  * 学习优化迭代
+end note
+
+control "策略规则引擎" as RULE_ENGINE
+control "触达渠道管理" as CHANNEL_MGR
+control "数据分析引擎" as ANALYTICS
+
+database "会员画像库" as MEMBER_DB
+database "药品标签库" as DRUG_DB
+database "活动策略库" as STRATEGY_DB
+database "外部信号源" as SIGNAL_SOURCE
+
+== 总部运营视角 ==
+
+HQ_OPERATOR -> HQ_PORTAL : 配置策略规则
+HQ_PORTAL -> RULE_ENGINE : 保存规则
+RULE_ENGINE -> STRATEGY_DB : 持久化
+
+note over HQ_OPERATOR, AGENT
+  <b>协作模式：</b>
+  运营从"做活动"变成"养策略"
+  智能体负责执行，运营负责审核调优
+end note
+
+== 智能体自动运行 ==
+
+SIGNAL_SOURCE -> AGENT : 推送信号
+note right: 季节/天气/舆情/位置
+
+AGENT -> MEMBER_DB : 查询会员画像
+AGENT -> DRUG_DB : 查询药品标签
+AGENT -> STRATEGY_DB : 加载策略规则
+
+AGENT -> RULE_ENGINE : 执行匹配
+RULE_ENGINE -> AGENT : 返回推荐结果
+
+AGENT -> CHANNEL_MGR : 生成触达任务
+CHANNEL_MGR -> MEMBER_MINIAPP : 推送消息
+CHANNEL_MGR -> WECOM_SIDEBAR : 推送提醒
+
+== 门店视角 ==
+
+STORE_STAFF -> STORE_PORTAL : 查看今日任务
+STORE_PORTAL -> AGENT : 获取推荐列表
+
+note over STORE_STAFF, AGENT
+  <b>协作模式：</b>
+  智能体是店长的"外挂大脑"
+  每日重点触达名单、补货建议、话术提示
+end note
+
+STORE_STAFF -> WECOM_SIDEBAR : 接待会员
+WECOM_SIDEBAR -> AGENT : 实时获取会员信息
+AGENT -> MEMBER_DB : 查询用药周期
+AGENT -> AGENT : 生成推荐话术
+AGENT -> WECOM_SIDEBAR : 返回推荐
+
+== 会员视角 ==
+
+MEMBER -> MEMBER_MINIAPP : 查看推送
+MEMBER_MINIAPP -> CHANNEL_MGR : 记录行为
+CHANNEL_MGR -> AGENT : 上报转化
+
+== 数据闭环 ==
+
+AGENT -> ANALYTICS : 上报活动数据
+ANALYTICS -> AGENT : 返回效果评估
+AGENT -> STRATEGY_DB : 优化规则参数
+
+note over ANALYTICS, AGENT
+  <b>自学习闭环：</b>
+  感知-决策-执行-反馈-学习
+  持续优化策略效果
+end note
+
+@enduml

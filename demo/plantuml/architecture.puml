@@ -1,0 +1,144 @@
+@startuml 系统技术架构图
+skinparam backgroundColor #f8fafc
+skinparam shadowing false
+skinparam handwritten false
+
+skinparam note {
+  BackgroundColor #fffbeb
+  BorderColor #f59e0b
+  FontColor #92400e
+}
+
+title
+  <b><size:18>药房智能体系统技术架构</size></b>
+  <size:12>四层架构设计：接入层、应用层、能力层、数据层</size>
+end title
+
+package "接入层" #dbeafe {
+  [运营管理后台] as HQ_ADMIN
+  [店长工作台] as STORE_PORTAL
+  [企微侧边栏] as WECOM_SIDEBAR
+  [会员小程序] as MEMBER_MINIAPP
+  [API开放平台] as API_GATEWAY
+}
+
+note right of HQ_ADMIN
+  <size:11><b>总部运营端：</b></size>
+  * 策略配置管理
+  * 标签规则维护
+  * 券模板管理
+  * 活动复盘分析
+end note
+
+note right of STORE_PORTAL
+  <size:11><b>门店端：</b></size>
+  * 今日任务清单
+  * 补货建议确认
+  * 会员触达记录
+  * 销售业绩查看
+end note
+
+note right of WECOM_SIDEBAR
+  <size:11><b>企微助手：</b></size>
+  * 会员实时画像
+  * 用药周期提醒
+  * 智能推荐话术
+  * 券包快捷发送
+end note
+
+package "应用层" #fce7f3 {
+  [智能体核心引擎] as AGENT_ENGINE
+  [策略规则引擎] as RULE_ENGINE
+  [活动编排引擎] as ACTIVITY_ENGINE
+  [触达渠道管理] as CHANNEL_MGR
+  [数据分析中心] as DATA_ANALYTICS
+}
+
+note right of AGENT_ENGINE
+  <size:11><b>数字副店长核心：</b></size>
+  * 感知-洞察-决策闭环
+  * 多模态理解能力
+  * 上下文记忆管理
+  * 自学习迭代优化
+end note
+
+note right of RULE_ENGINE
+  <size:11><b>规则引擎：</b></size>
+  * 会员-药品匹配规则
+  * 触发条件判定
+  * 冲突解决策略
+  * A/B测试支持
+end note
+
+package "能力层" #dcfce7 {
+  [会员画像服务] as MEMBER_PROFILE
+  [药品知识图谱] as DRUG_KG
+  [外部信号感知] as SIGNAL_PERCEIVE
+  [推荐算法服务] as RECOMMEND_SVC
+  [自然语言处理] as NLP_SVC
+}
+
+note right of MEMBER_PROFILE
+  <size:11><b>会员画像：</b></size>
+  * 基础属性标签
+  * 用药历史记录
+  * 消费行为分析
+  * 健康风险评估
+end note
+
+note right of SIGNAL_PERCEIVE
+  <size:11><b>外部感知：</b></size>
+  * 季节节气监测
+  * 天气预报对接
+  * 舆情热点监控
+  * 地理位置服务
+end note
+
+package "数据层" #fef3c7 {
+  database "会员数据库" as MEMBER_DB
+  database "药品数据库" as DRUG_DB
+  database "策略数据库" as STRATEGY_DB
+  database "活动数据库" as ACTIVITY_DB
+  database "日志分析库" as LOG_DB
+}
+
+package "基础设施" #f1f5f9 {
+  [消息队列] as MQ
+  [缓存服务] as CACHE
+  [任务调度] as SCHEDULER
+  [监控告警] as MONITOR
+}
+
+HQ_ADMIN --> API_GATEWAY
+STORE_PORTAL --> API_GATEWAY
+WECOM_SIDEBAR --> API_GATEWAY
+MEMBER_MINIAPP --> API_GATEWAY
+
+API_GATEWAY --> AGENT_ENGINE
+API_GATEWAY --> RULE_ENGINE
+API_GATEWAY --> ACTIVITY_ENGINE
+API_GATEWAY --> CHANNEL_MGR
+API_GATEWAY --> DATA_ANALYTICS
+
+AGENT_ENGINE --> MEMBER_PROFILE
+AGENT_ENGINE --> DRUG_KG
+AGENT_ENGINE --> SIGNAL_PERCEIVE
+AGENT_ENGINE --> RECOMMEND_SVC
+AGENT_ENGINE --> NLP_SVC
+
+MEMBER_PROFILE --> MEMBER_DB
+DRUG_KG --> DRUG_DB
+SIGNAL_PERCEIVE --> ACTIVITY_DB
+RECOMMEND_SVC --> STRATEGY_DB
+NLP_SVC --> LOG_DB
+
+note bottom
+  <size:11><b>关键技术特点：</b></size>
+  * 全链路自动化闭环
+  * 实时感知外部信号
+  * 智能体自学习迭代
+  * 多端协同触达
+  * 数据驱动决策
+end note
+
+@enduml

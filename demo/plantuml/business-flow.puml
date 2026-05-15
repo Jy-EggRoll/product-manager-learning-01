@@ -1,0 +1,117 @@
+@startuml 药房智能体业务闭环流程图
+skinparam backgroundColor #f8fafc
+skinparam shadowing false
+skinparam arrowColor #475569
+skinparam arrowFontSize 12
+skinparam handwritten false
+
+skinparam activity {
+  BackgroundColor #e0f2fe
+  BorderColor #0284c7
+  FontColor #0c4a6e
+}
+
+skinparam start {
+  BackgroundColor #22c55e
+  BorderColor #16a34a
+}
+
+skinparam end {
+  BackgroundColor #f87171
+  BorderColor #dc2626
+}
+
+skinparam note {
+  BackgroundColor #fffbeb
+  BorderColor #f59e0b
+  FontColor #92400e
+}
+
+title
+  <b><size:18>药房智能体业务闭环</size></b>
+  <size:12>感知-洞察-决策-触达-履约-复盘</size>
+end title
+
+partition "感知层 (外部信号)" #e0f2fe {
+  :季节变化;
+  :天气突变;
+  :舆情热点;
+  :地理位置;
+}
+
+partition "洞察层 (智能匹配)" #dbeafe {
+  :会员画像分析;
+  :用药周期计算;
+  :药品标签匹配;
+  :关联推荐计算;
+}
+
+partition "决策层 (智能体)" #fce7f3 {
+  :策略规则引擎;
+  :券包自动生成;
+  :时机判定;
+  :渠道选择;
+}
+
+partition "触达层 (多渠道)" #fef3c7 {
+  :企业微信;
+  :短信通知;
+  :小程序推送;
+  :APP消息;
+}
+
+partition "履约层 (门店)" #dcfce7 {
+  :会员到店;
+  :店员承接;
+  :核销券码;
+  :补货确认;
+}
+
+partition "复盘层 (数据闭环)" #f3e8ff {
+  :转化数据分析;
+  :库存消化统计;
+  :策略效果评估;
+  :规则迭代优化;
+}
+
+start
+
+:外部信号触发;
+note right: 例：降温预警、流感舆情
+
+:感知层捕获;
+-> 季节/天气/舆情/位置;
+
+:洞察层分析;
+note right
+  会员画像 + 药品标签
+  + 用药周期 = 精准匹配
+end note
+
+:决策层判定;
+note right
+  智能体"数字副店长"
+  自动生成活动方案
+end note
+
+:触达层推送;
+note right: 多渠道智能触达
+
+:会员响应;
+note left: 点击/领取/咨询
+
+:门店履约;
+note right: 店员承接 + 核销
+
+:数据采集;
+
+:复盘优化;
+note right: 转化分析 -> 规则迭代
+
+:形成闭环;
+
+-> 持续学习优化;
+
+end
+
+@enduml
