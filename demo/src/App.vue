@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import AOS from 'aos'
 import {
   LayoutDashboard,
   BarChart3,
@@ -17,6 +18,12 @@ const router = useRouter()
 
 const sidebarOpen = ref(true)
 const mobileMenuOpen = ref(false)
+
+router.afterEach(() => {
+  nextTick(() => {
+    AOS.refresh()
+  })
+})
 
 const iconComponents = {
   LayoutDashboard,
@@ -60,8 +67,8 @@ const isActive = (path) => route.path === path
     <aside class="sidebar" :class="{ 'is-collapsed': !sidebarOpen, 'is-mobile-open': mobileMenuOpen }">
       <div class="sidebar-header">
         <div class="logo">
-          <Pill class="logo-icon" />
-          <span v-if="sidebarOpen" class="logo-text">药房智能体</span>
+          <Pill class="logo-icon" :size="24" />
+          <span v-show="sidebarOpen" class="logo-text">药房智能体</span>
         </div>
         <button class="mobile-close-btn" @click="mobileMenuOpen = false" aria-label="关闭菜单">
           <X :size="20" />
@@ -75,14 +82,16 @@ const isActive = (path) => route.path === path
           class="nav-item"
           :class="{ 'is-active': isActive(item.path) }"
           @click="navigateTo(item.path)"
+          role="button"
+          tabindex="0"
         >
           <component :is="iconComponents[item.icon]" :size="20" class="nav-icon" />
-          <span v-if="sidebarOpen" class="nav-text">{{ item.name }}</span>
-          <ChevronRight v-if="sidebarOpen && isActive(item.path)" :size="16" class="nav-arrow" />
+          <span v-show="sidebarOpen" class="nav-text">{{ item.name }}</span>
+          <ChevronRight v-show="sidebarOpen && isActive(item.path)" :size="16" class="nav-arrow" />
         </div>
       </nav>
 
-      <div v-if="sidebarOpen" class="sidebar-footer">
+      <div v-show="sidebarOpen" class="sidebar-footer">
         <div class="version-badge">v1.0.0 Demo</div>
         <div class="footer-text">作业演示系统</div>
       </div>
@@ -101,7 +110,7 @@ const isActive = (path) => route.path === path
         </div>
         <div class="header-right">
           <div class="user-info">
-            <span class="user-avatar">👤</span>
+            <span class="user-avatar" role="img" aria-label="用户头像">👤</span>
             <span class="user-name">演示用户</span>
           </div>
         </div>
@@ -109,7 +118,7 @@ const isActive = (path) => route.path === path
 
       <div class="content-area">
         <router-view v-slot="{ Component }">
-          <transition name="fade" mode="out-in">
+          <transition name="page" mode="out-in">
             <component :is="Component" />
           </transition>
         </router-view>
@@ -121,44 +130,42 @@ const isActive = (path) => route.path === path
 <style scoped>
 .app-layout {
   display: flex;
-  min-height: 100vh;
   min-height: 100dvh;
   background-color: var(--c-bg-page);
 }
 
+/* ─── Sidebar (mobile-first: hidden off-screen) ─── */
 .sidebar {
-  width: 240px;
-  background: linear-gradient(180deg, var(--c-bg-sidebar-start) 0%, var(--c-bg-sidebar-end) 100%);
-  display: flex;
-  flex-direction: column;
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: fixed;
   left: 0;
   top: 0;
-  height: 100vh;
+  width: 280px;
   height: 100dvh;
+  background: linear-gradient(180deg, var(--c-bg-sidebar-start) 0%, var(--c-bg-sidebar-end) 100%);
+  display: flex;
+  flex-direction: column;
   z-index: 100;
-}
-
-.sidebar.is-collapsed {
-  width: 72px;
+  transform: translateX(-100%);
+  transition: transform var(--t-normal);
+  padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
 .sidebar.is-mobile-open {
   transform: translateX(0);
 }
 
-@media (max-width: 768px) {
+@media (min-width: 769px) {
   .sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    transform: translateX(-100%);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    width: 260px;
+    transform: none;
+    width: 240px;
+    transition: width var(--t-normal);
+  }
+  .sidebar.is-collapsed {
+    width: 72px;
   }
 }
 
+/* ─── Mobile overlay ─── */
 .mobile-overlay {
   position: fixed;
   inset: 0;
@@ -166,7 +173,7 @@ const isActive = (path) => route.path === path
   z-index: 99;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition: opacity var(--t-normal), visibility var(--t-normal);
 }
 
 .mobile-overlay.is-open {
@@ -174,8 +181,9 @@ const isActive = (path) => route.path === path
   visibility: visible;
 }
 
+/* ─── Sidebar inner ─── */
 .sidebar-header {
-  padding: 20px 16px;
+  padding: var(--s-5) var(--s-4);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -185,8 +193,9 @@ const isActive = (path) => route.path === path
 .logo {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--s-3);
   color: #fff;
+  min-height: 44px;
 }
 
 .logo-icon {
@@ -201,27 +210,27 @@ const isActive = (path) => route.path === path
 }
 
 .mobile-close-btn {
-  display: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
   color: var(--c-text-light);
   cursor: pointer;
+  width: 44px;
+  height: 44px;
   padding: 8px;
-  min-width: 44px;
-  min-height: 44px;
-  align-items: center;
-  justify-content: center;
 }
 
-@media (max-width: 768px) {
+@media (min-width: 769px) {
   .mobile-close-btn {
-    display: flex;
+    display: none;
   }
 }
 
 .sidebar-nav {
   flex: 1;
-  padding: 12px 8px;
+  padding: var(--s-3) var(--s-2);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -229,14 +238,15 @@ const isActive = (path) => route.path === path
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--s-3);
   padding: 14px 12px;
   margin: 4px 0;
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--t-fast);
   color: var(--c-text-light);
   min-height: 48px;
+  user-select: none;
 }
 
 .nav-item:hover {
@@ -262,10 +272,11 @@ const isActive = (path) => route.path === path
 
 .nav-arrow {
   margin-left: auto;
+  flex-shrink: 0;
 }
 
 .sidebar-footer {
-  padding: 16px;
+  padding: var(--s-4);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
 }
@@ -285,84 +296,90 @@ const isActive = (path) => route.path === path
   font-size: 12px;
 }
 
+/* ─── Main content (mobile-first: full width) ─── */
 .main-content {
   flex: 1;
-  margin-left: 240px;
   display: flex;
   flex-direction: column;
-  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  min-height: 100vh;
   min-height: 100dvh;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
-@media (max-width: 768px) {
+@media (min-width: 769px) {
   .main-content {
-    margin-left: 0;
+    margin-left: 240px;
+    width: calc(100% - 240px);
+    transition: margin-left var(--t-normal), width var(--t-normal);
   }
-}
-
-.sidebar.is-collapsed ~ .main-content {
-  margin-left: 72px;
-}
-
-@media (max-width: 768px) {
   .sidebar.is-collapsed ~ .main-content {
-    margin-left: 0;
+    margin-left: 72px;
+    width: calc(100% - 72px);
   }
 }
 
+/* ─── Top header ─── */
 .top-header {
-  height: 64px;
-  background: var(--c-bg-card);
-  border-bottom: 1px solid var(--c-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  padding: 0 var(--s-4);
+  height: 56px;
+  background: var(--c-bg-card);
+  border-bottom: 1px solid var(--c-border);
   position: sticky;
   top: 0;
   z-index: 50;
   flex-shrink: 0;
 }
 
+@media (min-width: 769px) {
+  .top-header {
+    height: 64px;
+    padding: 0 var(--s-5);
+  }
+}
+
 .header-left {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: var(--s-2);
+  min-width: 0;
 }
 
 .mobile-menu-btn {
-  display: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
   background: none;
   border: none;
   color: var(--c-text-secondary);
   cursor: pointer;
-  padding: 8px;
-  min-width: 44px;
-  min-height: 44px;
-  align-items: center;
-  justify-content: center;
+  flex-shrink: 0;
 }
 
-@media (max-width: 768px) {
+@media (min-width: 769px) {
   .mobile-menu-btn {
-    display: flex;
+    display: none;
   }
 }
 
 .collapse-btn {
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
+  width: 44px;
+  height: 44px;
   background: none;
   border: none;
   color: var(--c-text-muted);
   cursor: pointer;
-  padding: 10px;
-  min-width: 44px;
-  min-height: 44px;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+  border-radius: var(--r-sm);
+  transition: all var(--t-fast);
+  flex-shrink: 0;
 }
 
 .collapse-btn:hover {
@@ -370,52 +387,65 @@ const isActive = (path) => route.path === path
   color: var(--c-text-primary);
 }
 
-@media (max-width: 768px) {
+@media (min-width: 769px) {
   .collapse-btn {
-    display: none;
+    display: flex;
   }
 }
 
 .page-title {
-  font-size: 18px;
+  font-size: clamp(16px, 2.5vw, 20px);
   font-weight: 600;
   color: var(--c-text-primary);
-  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .header-right {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .user-info {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--s-2);
   padding: 6px 12px;
   background: var(--c-bg-muted);
-  border-radius: 8px;
+  border-radius: var(--r-sm);
 }
 
 .user-avatar {
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .user-name {
-  font-size: 14px;
+  font-size: clamp(12px, 1.4vw, 14px);
   color: var(--c-text-secondary);
   font-weight: 500;
 }
 
-.content-area {
-  flex: 1;
-  padding: 24px;
-  overflow-y: auto;
+@media (max-width: 480px) {
+  .user-name {
+    display: none;
+  }
 }
 
-@media (max-width: 768px) {
+/* ─── Content area ─── */
+.content-area {
+  flex: 1;
+  padding: var(--s-4);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(var(--s-4) + env(safe-area-inset-bottom, 0));
+}
+
+@media (min-width: 769px) {
   .content-area {
-    padding: 16px;
+    padding: var(--s-5);
+    padding-bottom: calc(var(--s-5) + env(safe-area-inset-bottom, 0));
   }
 }
 </style>

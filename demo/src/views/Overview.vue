@@ -40,7 +40,7 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
 
 <template>
   <div class="overview-page">
-    <section class="hero-section">
+    <section class="hero-section" data-aos="fade-down">
       <div class="hero-content">
         <div class="hero-badge">
           <Zap :size="16" />
@@ -59,13 +59,15 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
       </div>
     </section>
 
-    <section class="benefits-section">
+    <section class="benefits-section" data-aos="fade-up">
       <h2 class="section-title">预期收益</h2>
       <div class="benefits-grid">
         <div
           v-for="(benefit, index) in overview.expectedBenefits"
           :key="index"
           class="benefit-card"
+          :data-aos="'fade-up'"
+          :data-aos-delay="index * 100"
         >
           <div class="benefit-icon">
             <component :is="iconComponents[benefitIcons[index]]" :size="24" />
@@ -77,7 +79,7 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
       </div>
     </section>
 
-    <section class="flow-section">
+    <section class="flow-section" data-aos="fade-up">
       <h2 class="section-title">
         <Target :size="24" />
         业务闭环流程
@@ -88,6 +90,8 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
           v-for="(step, index) in overview.businessProcess"
           :key="step.step"
           class="flow-step"
+          :data-aos="'fade-up'"
+          :data-aos-delay="index * 80"
         >
           <div class="step-icon-wrapper" :style="{ background: step.color }">
             <component :is="stepIcons[index]" :size="18" />
@@ -96,29 +100,33 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
             <div class="step-name" :style="{ color: step.color }">{{ step.name }}</div>
             <div class="step-desc">{{ step.desc }}</div>
           </div>
-          <ChevronRight v-if="index < overview.businessProcess.length - 1" class="step-arrow" :size="20" />
+          <div v-if="index < overview.businessProcess.length - 1" class="step-connector">
+            <ChevronRight :size="20" />
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="roles-section">
+    <section class="roles-section" data-aos="fade-up">
       <h2 class="section-title">
         <Users :size="24" />
         角色协作关系
       </h2>
-      <div class="roles-tabs">
+      <div class="roles-tabs" role="tablist">
         <button
           v-for="(role, index) in overview.roles"
           :key="index"
           class="role-tab"
           :class="{ 'is-active': activeRole === index }"
           @click="activeRole = index"
+          role="tab"
+          :aria-selected="activeRole === index"
         >
           <span class="tab-avatar">{{ role.avatar }}</span>
           <span class="tab-name">{{ role.name }}</span>
         </button>
       </div>
-      <div class="role-detail">
+      <div class="role-detail" data-aos="fade-up" :data-aos-key="activeRole">
         <div class="role-header">
           <div class="role-avatar-large">{{ overview.roles[activeRole].avatar }}</div>
           <div>
@@ -161,24 +169,29 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
   margin: 0 auto;
 }
 
+/* ─── Hero ─── */
 .hero-section {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 48px;
+  grid-template-columns: 1fr;
+  gap: var(--s-6);
   align-items: center;
   background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-  border-radius: 20px;
-  padding: 48px;
-  margin-bottom: 40px;
+  border-radius: var(--r-lg);
+  padding: var(--s-6) var(--s-5);
+  margin-bottom: var(--s-6);
   overflow: hidden;
   position: relative;
 }
 
-@media (max-width: 768px) {
+@media (min-width: 640px) {
   .hero-section {
-    grid-template-columns: 1fr;
-    padding: 32px 24px;
+    grid-template-columns: 1fr auto;
+    padding: var(--s-6);
   }
+}
+
+.hero-content {
+  min-width: 0;
 }
 
 .hero-badge {
@@ -189,42 +202,48 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
   color: #fff;
   padding: 6px 14px;
   border-radius: 20px;
-  font-size: 14px;
+  font-size: clamp(12px, 1.4vw, 14px);
   font-weight: 500;
-  margin-bottom: 20px;
+  margin-bottom: var(--s-4);
 }
 
 .hero-title {
-  font-size: 36px;
+  font-size: clamp(24px, 5vw, 40px);
   font-weight: 700;
   color: #fff;
-  margin: 0 0 12px 0;
-  line-height: 1.2;
-}
-
-@media (max-width: 768px) {
-  .hero-title {
-    font-size: 28px;
-  }
+  margin: 0 0 var(--s-3) 0;
+  line-height: 1.15;
 }
 
 .hero-subtitle {
-  font-size: 18px;
-  color: rgba(255, 255, 255, 0.8);
+  font-size: clamp(14px, 2vw, 18px);
+  color: rgba(255, 255, 255, 0.85);
   margin: 0;
+  line-height: 1.5;
 }
 
 .hero-graphic {
+  display: none;
   position: relative;
-  height: 200px;
-  display: flex;
+  height: 180px;
+  width: 180px;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
-@media (max-width: 768px) {
+@media (min-width: 640px) {
   .hero-graphic {
-    display: none;
+    display: flex;
+  }
+}
+
+@media (min-width: 480px) and (max-width: 639px) {
+  .hero-graphic {
+    display: flex;
+    height: 140px;
+    width: 140px;
+    justify-self: center;
   }
 }
 
@@ -235,14 +254,14 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
 }
 
 .circle-1 {
-  width: 180px;
-  height: 180px;
+  width: 160px;
+  height: 160px;
   animation: pulse 3s ease-in-out infinite;
 }
 
 .circle-2 {
-  width: 140px;
-  height: 140px;
+  width: 130px;
+  height: 130px;
   animation: pulse 3s ease-in-out infinite 0.5s;
 }
 
@@ -253,19 +272,13 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
 }
 
 @keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.5;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.8;
-  }
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.05); opacity: 0.8; }
 }
 
 .graphic-center {
-  width: 80px;
-  height: 80px;
+  width: 70px;
+  height: 70px;
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   border-radius: 50%;
@@ -277,56 +290,61 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
 
 .center-icon {
   color: #fff;
+  width: 32px;
+  height: 32px;
 }
 
+/* ─── Section title ─── */
 .section-title {
-  font-size: 24px;
+  font-size: clamp(18px, 3vw, 26px);
   font-weight: 600;
   color: var(--c-text-primary);
-  margin: 0 0 8px 0;
+  margin: 0 0 var(--s-2) 0;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--s-2);
 }
 
 .section-desc {
   color: var(--c-text-muted);
-  margin: 0 0 24px 0;
-  font-size: 15px;
+  margin: 0 0 var(--s-4) 0;
+  font-size: clamp(13px, 1.6vw, 15px);
+  line-height: 1.6;
 }
 
+/* ─── Benefits ─── */
 .benefits-section {
-  margin-bottom: 48px;
+  margin-bottom: var(--s-6);
 }
 
 .benefits-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  grid-template-columns: 1fr;
+  gap: var(--s-4);
 }
 
-@media (max-width: 1024px) {
+@media (min-width: 480px) {
   .benefits-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 480px) {
+@media (min-width: 900px) {
   .benefits-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
 .benefit-card {
   background: var(--c-bg-card);
-  border-radius: 16px;
-  padding: 24px;
+  border-radius: var(--r-lg);
+  padding: var(--s-5);
   border: 1px solid var(--c-border);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+  transition: transform var(--t-fast), box-shadow var(--t-normal);
 }
 
 .benefit-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-3px);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
 }
 
@@ -334,64 +352,63 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
   width: 48px;
   height: 48px;
   background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-accent) 100%);
-  border-radius: 12px;
+  border-radius: var(--r-md);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
-  margin-bottom: 16px;
+  margin-bottom: var(--s-4);
 }
 
 .benefit-value {
-  font-size: 28px;
+  font-size: clamp(22px, 3.5vw, 30px);
   font-weight: 700;
   color: var(--c-text-primary);
-  margin-bottom: 4px;
+  margin-bottom: var(--s-1);
 }
 
 .benefit-metric {
-  font-size: 14px;
+  font-size: clamp(13px, 1.5vw, 14px);
   font-weight: 500;
   color: var(--c-primary);
-  margin-bottom: 8px;
+  margin-bottom: var(--s-2);
 }
 
 .benefit-desc {
-  font-size: 13px;
+  font-size: clamp(12px, 1.4vw, 13px);
   color: var(--c-text-muted);
+  line-height: 1.5;
 }
 
+/* ─── Flow ─── */
 .flow-section {
-  margin-bottom: 48px;
+  margin-bottom: var(--s-6);
 }
 
 .flow-container {
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  overflow-x: auto;
-  padding: 8px 4px;
-  -webkit-overflow-scrolling: touch;
+  flex-direction: column;
+  gap: 0;
 }
 
-@media (max-width: 768px) {
+@media (min-width: 768px) {
   .flow-container {
-    flex-direction: column;
+    flex-direction: row;
+    gap: var(--s-3);
   }
 }
 
 .flow-step {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: var(--s-3);
   background: var(--c-bg-card);
-  border-radius: 12px;
-  padding: 20px;
+  border-radius: var(--r-md);
+  padding: var(--s-4);
   border: 1px solid var(--c-border);
-  flex: 1;
-  min-width: 160px;
   position: relative;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform var(--t-fast), box-shadow var(--t-fast);
+  flex: 1;
 }
 
 .flow-step:hover {
@@ -399,10 +416,9 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
 }
 
-@media (max-width: 768px) {
+@media (min-width: 768px) {
   .flow-step {
-    width: 100%;
-    min-width: auto;
+    min-width: 0;
   }
 }
 
@@ -417,61 +433,71 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
   flex-shrink: 0;
 }
 
+.step-content {
+  min-width: 0;
+  flex: 1;
+}
+
 .step-name {
   font-weight: 600;
-  font-size: 15px;
-  margin-bottom: 4px;
+  font-size: clamp(14px, 1.6vw, 15px);
+  margin-bottom: var(--s-1);
 }
 
 .step-desc {
-  font-size: 12px;
+  font-size: clamp(12px, 1.3vw, 13px);
   color: var(--c-text-muted);
   line-height: 1.5;
 }
 
-.step-arrow {
+.step-connector {
+  display: none;
   color: var(--c-text-light);
-  position: absolute;
-  right: -16px;
-  top: 50%;
-  transform: translateY(-50%);
   flex-shrink: 0;
+  align-self: center;
 }
 
-@media (max-width: 768px) {
-  .step-arrow {
-    position: static;
-    transform: rotate(90deg);
-    margin: 8px auto;
-    display: block;
+@media (min-width: 768px) {
+  .step-connector {
+    display: flex;
+    position: absolute;
+    right: -18px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
   }
 }
 
+/* ─── Roles ─── */
 .roles-section {
-  margin-bottom: 24px;
+  margin-bottom: var(--s-5);
 }
 
 .roles-tabs {
   display: flex;
-  gap: 12px;
-  margin-bottom: 24px;
+  gap: var(--s-2);
+  margin-bottom: var(--s-4);
   overflow-x: auto;
-  padding-bottom: 8px;
+  padding-bottom: var(--s-2);
   -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
 }
 
 .role-tab {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 14px 20px;
+  gap: var(--s-2);
+  padding: 12px var(--s-4);
   background: var(--c-bg-card);
   border: 2px solid var(--c-border);
-  border-radius: 12px;
+  border-radius: var(--r-md);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--t-fast);
   font-family: inherit;
   white-space: nowrap;
+  min-height: 48px;
+  scroll-snap-align: start;
+  flex-shrink: 0;
 }
 
 .role-tab:hover {
@@ -484,17 +510,18 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
 }
 
 .tab-avatar {
-  font-size: 24px;
+  font-size: clamp(20px, 3vw, 24px);
 }
 
 .tab-name {
   font-weight: 600;
   color: var(--c-text-secondary);
+  font-size: clamp(13px, 1.5vw, 14px);
 }
 
 .role-detail {
   background: var(--c-bg-card);
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   border: 1px solid var(--c-border);
   overflow: hidden;
 }
@@ -502,61 +529,70 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
 .role-header {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 24px;
+  gap: var(--s-4);
+  padding: var(--s-5);
   background: linear-gradient(135deg, var(--c-bg-muted) 0%, var(--c-bg-page) 100%);
   border-bottom: 1px solid var(--c-border);
 }
 
 .role-avatar-large {
-  font-size: 48px;
-  width: 72px;
-  height: 72px;
+  font-size: 36px;
+  width: 64px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--c-bg-card);
-  border-radius: 16px;
+  border-radius: var(--r-md);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .role-avatar-large {
+    font-size: 48px;
+    width: 72px;
+    height: 72px;
+  }
 }
 
 .role-name {
-  font-size: 20px;
+  font-size: clamp(17px, 2.5vw, 20px);
   font-weight: 600;
   color: var(--c-text-primary);
   margin: 0 0 4px 0;
 }
 
 .role-count {
-  font-size: 14px;
+  font-size: clamp(13px, 1.5vw, 14px);
   color: var(--c-text-muted);
 }
 
 .role-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr;
   gap: 1px;
   background: var(--c-border);
 }
 
-@media (max-width: 1024px) {
+@media (min-width: 768px) {
   .role-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
 .role-card {
   background: var(--c-bg-card);
-  padding: 24px;
+  padding: var(--s-5);
 }
 
 .role-card-title {
-  font-size: 14px;
+  font-size: clamp(12px, 1.4vw, 14px);
   font-weight: 600;
   color: var(--c-text-light);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin: 0 0 16px 0;
+  margin: 0 0 var(--s-4) 0;
 }
 
 .pain-title {
@@ -572,9 +608,9 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
 .role-list li {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  padding: 8px 0;
-  font-size: 14px;
+  gap: var(--s-2);
+  padding: var(--s-2) 0;
+  font-size: clamp(13px, 1.5vw, 14px);
   color: var(--c-text-secondary);
   line-height: 1.5;
 }
@@ -582,10 +618,10 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
 .list-dot {
   width: 6px;
   height: 6px;
+  min-width: 6px;
   background: var(--c-primary);
   border-radius: 50%;
   margin-top: 7px;
-  flex-shrink: 0;
 }
 
 .pain-dot {
@@ -597,7 +633,7 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
 }
 
 .collaboration-text {
-  font-size: 15px;
+  font-size: clamp(14px, 1.6vw, 15px);
   color: var(--c-text-secondary);
   line-height: 1.8;
   margin: 0;

@@ -15,16 +15,9 @@ import { agentChatData } from '@/data/mockData'
 
 const scenarios = agentChatData.scenarios
 
-const iconComponents = {
-  CloudRain,
-  Package,
-  UserCircle
-}
+const iconComponents = { CloudRain, Package, UserCircle }
 
-const roleIcons = {
-  agent: Bot,
-  human: User
-}
+const roleIcons = { agent: Bot, human: User }
 
 const activeScenario = ref(0)
 const messages = ref([])
@@ -53,22 +46,22 @@ const selectScenario = (index) => {
 
 const sendMessage = () => {
   if (!userInput.value.trim()) return
-  
+
   const newMessage = {
     role: 'human',
     content: userInput.value,
     time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
   }
-  
+
   if (messages.value.length === 0) {
     messages.value = [...scenarios[activeScenario.value].messages]
   }
   messages.value.push(newMessage)
   userInput.value = ''
-  
+
   isTyping.value = true
   scrollToBottom()
-  
+
   setTimeout(() => {
     isTyping.value = false
     const responses = [
@@ -88,14 +81,10 @@ const sendMessage = () => {
   }, 1500)
 }
 
-const getMessageClass = (role) => {
-  return role === 'agent' ? 'message-agent' : 'message-human'
-}
-
 const playScenario = async () => {
   messages.value = []
   const scenarioMessages = scenarios[activeScenario.value].messages
-  
+
   for (let i = 0; i < scenarioMessages.length; i++) {
     isTyping.value = scenarioMessages[i].role === 'agent'
     await new Promise(resolve => setTimeout(resolve, isTyping.value ? 1200 : 300))
@@ -109,7 +98,7 @@ const playScenario = async () => {
 <template>
   <div class="agent-chat-page">
     <div class="chat-layout">
-      <div class="scenarios-panel">
+      <div class="scenarios-panel" data-aos="fade-right">
         <div class="panel-header">
           <Sparkles :size="20" />
           <span class="panel-title">场景演示</span>
@@ -132,16 +121,16 @@ const playScenario = async () => {
             <ChevronRight :size="16" class="scenario-arrow" />
           </div>
         </div>
-        
+
         <div class="panel-footer">
           <button class="play-btn" @click="playScenario">
             <Sparkles :size="16" />
-            自动播放场景
+            自动播放
           </button>
         </div>
       </div>
 
-      <div class="chat-main">
+      <div class="chat-main" data-aos="fade-left">
         <div class="chat-header">
           <div class="chat-title">
             <div class="agent-avatar">
@@ -166,7 +155,7 @@ const playScenario = async () => {
         <div class="chat-messages" ref="chatContainer">
           <div v-if="messages.length === 0" class="welcome-screen">
             <div class="welcome-icon">
-              <Bot :size="48" />
+              <Bot :size="40" />
             </div>
             <h3 class="welcome-title">您好，我是数字副店长</h3>
             <p class="welcome-desc">
@@ -198,7 +187,7 @@ const playScenario = async () => {
               v-for="(message, index) in currentMessages"
               :key="index"
               class="message-wrapper"
-              :class="getMessageClass(message.role)"
+              :class="message.role === 'agent' ? 'message-agent' : 'message-human'"
             >
               <div class="message-avatar">
                 <component :is="roleIcons[message.role]" :size="18" />
@@ -211,24 +200,24 @@ const playScenario = async () => {
               </div>
             </div>
           </div>
+        </div>
 
-          <transition name="typing-fade">
-            <div v-if="isTyping" class="message-wrapper message-agent">
-              <div class="message-avatar">
-                <Bot :size="18" />
-              </div>
-              <div class="message-content">
-                <div class="message-bubble typing-bubble">
-                  <div class="typing-dots">
-                    <span class="dot"></span>
-                    <span class="dot"></span>
-                    <span class="dot"></span>
-                  </div>
+        <transition name="typing-fade">
+          <div v-if="isTyping" class="message-wrapper message-agent typing-indicator">
+            <div class="message-avatar">
+              <Bot :size="18" />
+            </div>
+            <div class="message-content">
+              <div class="message-bubble typing-bubble">
+                <div class="typing-dots">
+                  <span class="dot"></span>
+                  <span class="dot"></span>
+                  <span class="dot"></span>
                 </div>
               </div>
             </div>
-          </transition>
-        </div>
+          </div>
+        </transition>
 
         <div class="chat-input-area">
           <div class="input-wrapper">
@@ -239,12 +228,12 @@ const playScenario = async () => {
               class="chat-input"
               @keyup.enter="sendMessage"
             />
-            <button class="send-btn" @click="sendMessage" :disabled="!userInput.trim()">
+            <button class="send-btn" @click="sendMessage" :disabled="!userInput.trim()" aria-label="发送">
               <Send :size="18" />
             </button>
           </div>
           <div class="quick-commands">
-            <span class="quick-hint">快捷指令：</span>
+            <span class="quick-hint">快捷：</span>
             <button class="quick-cmd" @click="userInput = '查看今日信号'">查看今日信号</button>
             <button class="quick-cmd" @click="userInput = '生成补货建议'">生成补货建议</button>
             <button class="quick-cmd" @click="userInput = '分析会员活跃度'">分析会员活跃度</button>
@@ -257,44 +246,53 @@ const playScenario = async () => {
 
 <style scoped>
 .agent-chat-page {
-  height: calc(100vh - 112px);
-  height: calc(100dvh - 112px);
-  min-height: 600px;
+  height: calc(100vh - 56px - var(--s-4) * 2);
+  height: calc(100dvh - 56px - var(--s-4) * 2);
+  min-height: 500px;
+}
+
+@media (min-width: 769px) {
+  .agent-chat-page {
+    height: calc(100vh - 64px - var(--s-5) * 2);
+    height: calc(100dvh - 64px - var(--s-5) * 2);
+  }
 }
 
 .chat-layout {
   display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 24px;
+  grid-template-columns: 1fr;
+  gap: var(--s-4);
   height: 100%;
 }
 
-@media (max-width: 1024px) {
+@media (min-width: 769px) {
   .chat-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: 280px 1fr;
   }
 }
 
+/* ─── Scenarios Panel ─── */
 .scenarios-panel {
   background: var(--c-bg-card);
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   border: 1px solid var(--c-border);
   display: flex;
   flex-direction: column;
-  height: 100%;
+  max-height: 200px;
 }
 
-@media (max-width: 1024px) {
+@media (min-width: 769px) {
   .scenarios-panel {
-    height: auto;
+    height: 100%;
+    max-height: none;
   }
 }
 
 .panel-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 20px;
+  gap: var(--s-2);
+  padding: var(--s-4);
   border-bottom: 1px solid var(--c-border);
   flex-shrink: 0;
 }
@@ -302,24 +300,45 @@ const playScenario = async () => {
 .panel-title {
   font-weight: 600;
   color: var(--c-text-primary);
+  font-size: clamp(14px, 1.6vw, 15px);
 }
 
 .scenarios-list {
-  flex: 1;
-  padding: 12px;
-  overflow-y: auto;
+  display: flex;
+  gap: var(--s-2);
+  padding: var(--s-3);
+  overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+}
+
+@media (min-width: 769px) {
+  .scenarios-list {
+    flex-direction: column;
+    flex: 1;
+    overflow-x: visible;
+    overflow-y: auto;
+  }
 }
 
 .scenario-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px;
-  border-radius: 10px;
+  gap: var(--s-2);
+  padding: 12px;
+  border-radius: var(--r-sm);
   cursor: pointer;
-  transition: background 0.2s ease;
-  margin-bottom: 4px;
+  transition: background var(--t-fast);
+  white-space: nowrap;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  border: 1px solid transparent;
+}
+
+@media (min-width: 769px) {
+  .scenario-item {
+    white-space: normal;
+  }
 }
 
 .scenario-item:hover {
@@ -328,50 +347,44 @@ const playScenario = async () => {
 
 .scenario-item.is-active {
   background: linear-gradient(135deg, rgba(34, 197, 94, 0.08) 0%, rgba(16, 185, 129, 0.08) 100%);
-  border: 1px solid var(--c-primary);
+  border-color: var(--c-primary);
 }
 
 .scenario-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: var(--r-sm);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
-  flex-shrink: 0;
 }
 
-.scenario-icon.weather {
-  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-}
-
-.scenario-icon.replenishment {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-}
-
-.scenario-icon.member_service {
-  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
-}
+.scenario-icon.weather { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
+.scenario-icon.replenishment { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+.scenario-icon.member_service { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); }
 
 .scenario-info {
-  flex: 1;
   min-width: 0;
 }
 
 .scenario-name {
   font-weight: 600;
   color: var(--c-text-primary);
-  font-size: 14px;
-  margin-bottom: 2px;
+  font-size: clamp(12px, 1.4vw, 14px);
 }
 
 .scenario-desc {
+  display: none;
   font-size: 12px;
   color: var(--c-text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+}
+
+@media (min-width: 769px) {
+  .scenario-desc {
+    display: block;
+  }
 }
 
 .scenario-arrow {
@@ -380,7 +393,7 @@ const playScenario = async () => {
 }
 
 .panel-footer {
-  padding: 16px;
+  padding: var(--s-3);
   border-top: 1px solid var(--c-border);
   flex-shrink: 0;
 }
@@ -390,43 +403,46 @@ const playScenario = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 12px;
+  gap: var(--s-2);
+  padding: 10px;
   background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-accent) 100%);
   color: #fff;
   border: none;
-  border-radius: 10px;
-  font-size: 14px;
+  border-radius: var(--r-sm);
+  font-size: clamp(13px, 1.5vw, 14px);
   font-weight: 500;
   cursor: pointer;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity var(--t-fast), transform var(--t-fast);
   min-height: 44px;
 }
 
 .play-btn:hover {
   opacity: 0.9;
-  transform: translateY(-1px);
 }
 
-.play-btn:active {
-  transform: translateY(0);
-}
-
+/* ─── Chat Main ─── */
 .chat-main {
   background: var(--c-bg-card);
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   border: 1px solid var(--c-border);
   display: flex;
   flex-direction: column;
-  height: 100%;
   overflow: hidden;
+  height: auto;
+  min-height: 400px;
+}
+
+@media (min-width: 769px) {
+  .chat-main {
+    height: 100%;
+  }
 }
 
 .chat-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 24px;
+  padding: var(--s-3) var(--s-4);
   border-bottom: 1px solid var(--c-border);
   background: var(--c-bg-muted);
   flex-shrink: 0;
@@ -435,12 +451,14 @@ const playScenario = async () => {
 .chat-title {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--s-3);
+  min-width: 0;
 }
 
 .agent-avatar {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
   background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-accent) 100%);
   border-radius: 50%;
   display: flex;
@@ -452,7 +470,7 @@ const playScenario = async () => {
 .agent-name {
   font-weight: 600;
   color: var(--c-text-primary);
-  font-size: 15px;
+  font-size: clamp(14px, 1.6vw, 15px);
 }
 
 .agent-status {
@@ -472,17 +490,12 @@ const playScenario = async () => {
 }
 
 @keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 .chat-actions {
-  display: flex;
-  gap: 8px;
+  flex-shrink: 0;
 }
 
 .quick-action {
@@ -492,12 +505,12 @@ const playScenario = async () => {
   padding: 8px 12px;
   background: var(--c-bg-card);
   border: 1px solid var(--c-border);
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   font-size: 13px;
   color: var(--c-text-muted);
   cursor: pointer;
-  transition: all 0.2s ease;
-  min-height: 44px;
+  transition: all var(--t-fast);
+  min-height: 40px;
 }
 
 .quick-action:hover {
@@ -508,7 +521,7 @@ const playScenario = async () => {
 .chat-messages {
   flex: 1;
   overflow-y: auto;
-  padding: 24px;
+  padding: var(--s-4);
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
 }
@@ -520,38 +533,39 @@ const playScenario = async () => {
   justify-content: center;
   height: 100%;
   text-align: center;
+  padding: var(--s-4);
 }
 
 .welcome-icon {
-  width: 80px;
-  height: 80px;
+  width: 72px;
+  height: 72px;
   background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--c-primary);
-  margin-bottom: 24px;
+  margin-bottom: var(--s-4);
 }
 
 .welcome-title {
-  font-size: 20px;
+  font-size: clamp(17px, 2.5vw, 20px);
   font-weight: 600;
   color: var(--c-text-primary);
-  margin: 0 0 12px 0;
+  margin: 0 0 var(--s-3) 0;
 }
 
 .welcome-desc {
-  font-size: 14px;
+  font-size: clamp(13px, 1.5vw, 14px);
   color: var(--c-text-muted);
-  margin: 0 0 24px 0;
+  margin: 0 0 var(--s-4) 0;
   line-height: 1.6;
 }
 
 .welcome-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--s-2);
   justify-content: center;
 }
 
@@ -563,18 +577,19 @@ const playScenario = async () => {
   background: var(--c-bg-muted);
   color: var(--c-text-secondary);
   border-radius: 20px;
-  font-size: 13px;
+  font-size: clamp(12px, 1.4vw, 13px);
 }
 
 .messages-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--s-4);
 }
 
 .message-wrapper {
   display: flex;
-  gap: 12px;
+  gap: var(--s-2);
+  max-width: 100%;
 }
 
 .message-wrapper.message-human {
@@ -584,11 +599,11 @@ const playScenario = async () => {
 .message-avatar {
   width: 32px;
   height: 32px;
+  min-width: 32px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
 }
 
 .message-agent .message-avatar {
@@ -602,18 +617,26 @@ const playScenario = async () => {
 }
 
 .message-content {
-  max-width: 75%;
+  max-width: 80%;
+  min-width: 0;
 }
 
-.message-wrapper.message-human .message-content {
+@media (min-width: 768px) {
+  .message-content {
+    max-width: 70%;
+  }
+}
+
+.message-human .message-content {
   text-align: right;
 }
 
 .message-bubble {
   display: inline-block;
-  padding: 14px 18px;
-  border-radius: 16px;
+  padding: 12px 16px;
+  border-radius: var(--r-md);
   max-width: 100%;
+  text-align: left;
 }
 
 .message-agent .message-bubble {
@@ -630,7 +653,7 @@ const playScenario = async () => {
 
 .message-text {
   margin: 0;
-  font-size: 14px;
+  font-size: clamp(13px, 1.5vw, 14px);
   line-height: 1.7;
   white-space: pre-wrap;
   word-break: break-word;
@@ -643,8 +666,12 @@ const playScenario = async () => {
   margin-top: 4px;
 }
 
+.typing-indicator {
+  padding: var(--s-2) var(--s-4);
+}
+
 .typing-bubble {
-  padding: 16px 20px;
+  padding: 14px 18px;
 }
 
 .typing-dots {
@@ -660,38 +687,22 @@ const playScenario = async () => {
   animation: typing 1.4s ease-in-out infinite;
 }
 
-.dot:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.dot:nth-child(3) {
-  animation-delay: 0.4s;
-}
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
 
 @keyframes typing {
-  0%, 60%, 100% {
-    transform: translateY(0);
-  }
-  30% {
-    transform: translateY(-6px);
-  }
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-6px); }
 }
 
-.typing-fade-enter-active {
-  transition: opacity 0.2s ease;
-}
-
-.typing-fade-leave-active {
-  transition: opacity 0.15s ease;
-}
-
+.typing-fade-enter-active { transition: opacity 0.2s ease; }
+.typing-fade-leave-active { transition: opacity 0.15s ease; }
 .typing-fade-enter-from,
-.typing-fade-leave-to {
-  opacity: 0;
-}
+.typing-fade-leave-to { opacity: 0; }
 
+/* ─── Input Area ─── */
 .chat-input-area {
-  padding: 16px 24px;
+  padding: var(--s-3) var(--s-4);
   border-top: 1px solid var(--c-border);
   background: var(--c-bg-muted);
   flex-shrink: 0;
@@ -699,20 +710,21 @@ const playScenario = async () => {
 
 .input-wrapper {
   display: flex;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: var(--s-2);
+  margin-bottom: var(--s-2);
 }
 
 .chat-input {
   flex: 1;
-  padding: 14px 18px;
+  padding: 12px 16px;
   border: 1px solid var(--c-border);
-  border-radius: 12px;
-  font-size: 14px;
+  border-radius: var(--r-md);
+  font-size: clamp(14px, 1.6vw, 15px);
   font-family: inherit;
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
   background: var(--c-bg-card);
+  min-height: 44px;
 }
 
 .chat-input:focus {
@@ -729,18 +741,15 @@ const playScenario = async () => {
   background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-accent) 100%);
   color: #fff;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   cursor: pointer;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity var(--t-fast), transform var(--t-fast);
+  flex-shrink: 0;
 }
 
 .send-btn:hover:not(:disabled) {
   opacity: 0.9;
   transform: translateY(-1px);
-}
-
-.send-btn:active:not(:disabled) {
-  transform: translateY(0);
 }
 
 .send-btn:disabled {
@@ -751,30 +760,38 @@ const playScenario = async () => {
 .quick-commands {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--s-2);
   flex-wrap: wrap;
 }
 
 .quick-hint {
   font-size: 12px;
   color: var(--c-text-light);
+  flex-shrink: 0;
 }
 
 .quick-cmd {
   padding: 8px 14px;
   background: var(--c-bg-card);
   border: 1px solid var(--c-border);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   font-size: 12px;
   color: var(--c-text-muted);
   cursor: pointer;
-  transition: all 0.2s ease;
-  min-height: 36px;
+  transition: all var(--t-fast);
+  min-height: 40px;
+  white-space: nowrap;
 }
 
 .quick-cmd:hover {
   border-color: var(--c-primary);
   color: var(--c-primary);
   background: var(--c-primary-light);
+}
+
+@media (min-width: 769px) {
+  .quick-cmd {
+    min-height: 36px;
+  }
 }
 </style>
