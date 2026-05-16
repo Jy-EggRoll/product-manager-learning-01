@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import {
   Bot,
   User,
@@ -21,6 +21,11 @@ const iconComponents = {
   UserCircle
 }
 
+const roleIcons = {
+  agent: Bot,
+  human: User
+}
+
 const activeScenario = ref(0)
 const messages = ref([])
 const userInput = ref('')
@@ -30,6 +35,16 @@ const chatContainer = ref(null)
 const currentMessages = computed(() => {
   return messages.value.length > 0 ? messages.value : scenarios[activeScenario.value].messages
 })
+
+const scrollToBottom = async () => {
+  await nextTick()
+  if (chatContainer.value) {
+    chatContainer.value.scrollTo({
+      top: chatContainer.value.scrollHeight,
+      behavior: 'smooth'
+    })
+  }
+}
 
 const selectScenario = (index) => {
   activeScenario.value = index
@@ -52,6 +67,8 @@ const sendMessage = () => {
   userInput.value = ''
   
   isTyping.value = true
+  scrollToBottom()
+  
   setTimeout(() => {
     isTyping.value = false
     const responses = [
@@ -67,6 +84,7 @@ const sendMessage = () => {
       }
     ]
     messages.value.push(...responses)
+    scrollToBottom()
   }, 1500)
 }
 
@@ -83,6 +101,7 @@ const playScenario = async () => {
     await new Promise(resolve => setTimeout(resolve, isTyping.value ? 1200 : 300))
     isTyping.value = false
     messages.value.push(scenarioMessages[i])
+    await scrollToBottom()
   }
 }
 </script>
@@ -155,10 +174,22 @@ const playScenario = async () => {
               我可以帮您处理：
             </p>
             <div class="welcome-tags">
-              <span class="welcome-tag">天气触发活动</span>
-              <span class="welcome-tag">智能补货建议</span>
-              <span class="welcome-tag">会员服务辅助</span>
-              <span class="welcome-tag">活动方案生成</span>
+              <span class="welcome-tag">
+                <CloudRain :size="14" />
+                天气触发活动
+              </span>
+              <span class="welcome-tag">
+                <Package :size="14" />
+                智能补货建议
+              </span>
+              <span class="welcome-tag">
+                <UserCircle :size="14" />
+                会员服务辅助
+              </span>
+              <span class="welcome-tag">
+                <Sparkles :size="14" />
+                活动方案生成
+              </span>
             </div>
           </div>
 
@@ -170,8 +201,7 @@ const playScenario = async () => {
               :class="getMessageClass(message.role)"
             >
               <div class="message-avatar">
-                <Bot v-if="message.role === 'agent'" :size="18" />
-                <User v-else :size="18" />
+                <component :is="roleIcons[message.role]" :size="18" />
               </div>
               <div class="message-content">
                 <div class="message-bubble">
@@ -182,20 +212,22 @@ const playScenario = async () => {
             </div>
           </div>
 
-          <div v-if="isTyping" class="message-wrapper message-agent">
-            <div class="message-avatar">
-              <Bot :size="18" />
-            </div>
-            <div class="message-content">
-              <div class="message-bubble typing-bubble">
-                <div class="typing-dots">
-                  <span class="dot"></span>
-                  <span class="dot"></span>
-                  <span class="dot"></span>
+          <transition name="typing-fade">
+            <div v-if="isTyping" class="message-wrapper message-agent">
+              <div class="message-avatar">
+                <Bot :size="18" />
+              </div>
+              <div class="message-content">
+                <div class="message-bubble typing-bubble">
+                  <div class="typing-dots">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </transition>
         </div>
 
         <div class="chat-input-area">
@@ -226,6 +258,7 @@ const playScenario = async () => {
 <style scoped>
 .agent-chat-page {
   height: calc(100vh - 112px);
+  height: calc(100dvh - 112px);
   min-height: 600px;
 }
 
@@ -243,9 +276,9 @@ const playScenario = async () => {
 }
 
 .scenarios-panel {
-  background: #fff;
+  background: var(--c-bg-card);
   border-radius: 16px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--c-border);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -262,18 +295,20 @@ const playScenario = async () => {
   align-items: center;
   gap: 10px;
   padding: 20px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--c-border);
+  flex-shrink: 0;
 }
 
 .panel-title {
   font-weight: 600;
-  color: #1e293b;
+  color: var(--c-text-primary);
 }
 
 .scenarios-list {
   flex: 1;
   padding: 12px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .scenario-item {
@@ -283,17 +318,17 @@ const playScenario = async () => {
   padding: 14px;
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.2s ease;
   margin-bottom: 4px;
 }
 
 .scenario-item:hover {
-  background: #f8fafc;
+  background: var(--c-bg-muted);
 }
 
 .scenario-item.is-active {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
-  border: 1px solid #3b82f6;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.08) 0%, rgba(16, 185, 129, 0.08) 100%);
+  border: 1px solid var(--c-primary);
 }
 
 .scenario-icon {
@@ -308,7 +343,7 @@ const playScenario = async () => {
 }
 
 .scenario-icon.weather {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
 }
 
 .scenario-icon.replenishment {
@@ -316,7 +351,7 @@ const playScenario = async () => {
 }
 
 .scenario-icon.member_service {
-  background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
 }
 
 .scenario-info {
@@ -326,27 +361,28 @@ const playScenario = async () => {
 
 .scenario-name {
   font-weight: 600;
-  color: #1e293b;
+  color: var(--c-text-primary);
   font-size: 14px;
   margin-bottom: 2px;
 }
 
 .scenario-desc {
   font-size: 12px;
-  color: #64748b;
+  color: var(--c-text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .scenario-arrow {
-  color: #94a3b8;
+  color: var(--c-text-light);
   flex-shrink: 0;
 }
 
 .panel-footer {
   padding: 16px;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--c-border);
+  flex-shrink: 0;
 }
 
 .play-btn {
@@ -356,25 +392,30 @@ const playScenario = async () => {
   justify-content: center;
   gap: 8px;
   padding: 12px;
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-accent) 100%);
   color: #fff;
   border: none;
   border-radius: 10px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  min-height: 44px;
 }
 
 .play-btn:hover {
+  opacity: 0.9;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.play-btn:active {
+  transform: translateY(0);
 }
 
 .chat-main {
-  background: #fff;
+  background: var(--c-bg-card);
   border-radius: 16px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--c-border);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -386,8 +427,9 @@ const playScenario = async () => {
   justify-content: space-between;
   align-items: center;
   padding: 16px 24px;
-  border-bottom: 1px solid #e2e8f0;
-  background: #fafafa;
+  border-bottom: 1px solid var(--c-border);
+  background: var(--c-bg-muted);
+  flex-shrink: 0;
 }
 
 .chat-title {
@@ -399,7 +441,7 @@ const playScenario = async () => {
 .agent-avatar {
   width: 44px;
   height: 44px;
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-accent) 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -409,13 +451,13 @@ const playScenario = async () => {
 
 .agent-name {
   font-weight: 600;
-  color: #1e293b;
+  color: var(--c-text-primary);
   font-size: 15px;
 }
 
 .agent-status {
   font-size: 12px;
-  color: #64748b;
+  color: var(--c-text-muted);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -424,7 +466,7 @@ const playScenario = async () => {
 .status-dot {
   width: 8px;
   height: 8px;
-  background: #10b981;
+  background: #16a34a;
   border-radius: 50%;
   animation: pulse 2s ease-in-out infinite;
 }
@@ -448,24 +490,27 @@ const playScenario = async () => {
   align-items: center;
   gap: 6px;
   padding: 8px 12px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: var(--c-bg-card);
+  border: 1px solid var(--c-border);
   border-radius: 8px;
   font-size: 13px;
-  color: #64748b;
+  color: var(--c-text-muted);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  min-height: 44px;
 }
 
 .quick-action:hover {
-  border-color: #cbd5e1;
-  color: #1e293b;
+  border-color: var(--c-border-light);
+  color: var(--c-text-primary);
 }
 
 .chat-messages {
   flex: 1;
   overflow-y: auto;
   padding: 24px;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
 }
 
 .welcome-screen {
@@ -480,25 +525,25 @@ const playScenario = async () => {
 .welcome-icon {
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #3b82f6;
+  color: var(--c-primary);
   margin-bottom: 24px;
 }
 
 .welcome-title {
   font-size: 20px;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--c-text-primary);
   margin: 0 0 12px 0;
 }
 
 .welcome-desc {
   font-size: 14px;
-  color: #64748b;
+  color: var(--c-text-muted);
   margin: 0 0 24px 0;
   line-height: 1.6;
 }
@@ -511,9 +556,12 @@ const playScenario = async () => {
 }
 
 .welcome-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   padding: 6px 14px;
-  background: #f1f5f9;
-  color: #475569;
+  background: var(--c-bg-muted);
+  color: var(--c-text-secondary);
   border-radius: 20px;
   font-size: 13px;
 }
@@ -544,13 +592,13 @@ const playScenario = async () => {
 }
 
 .message-agent .message-avatar {
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-accent) 100%);
   color: #fff;
 }
 
 .message-human .message-avatar {
-  background: #e2e8f0;
-  color: #475569;
+  background: var(--c-border);
+  color: var(--c-text-secondary);
 }
 
 .message-content {
@@ -569,13 +617,13 @@ const playScenario = async () => {
 }
 
 .message-agent .message-bubble {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--c-bg-page);
+  border: 1px solid var(--c-border);
   border-bottom-left-radius: 4px;
 }
 
 .message-human .message-bubble {
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-accent) 100%);
   color: #fff;
   border-bottom-right-radius: 4px;
 }
@@ -591,7 +639,7 @@ const playScenario = async () => {
 
 .message-time {
   font-size: 11px;
-  color: #94a3b8;
+  color: var(--c-text-light);
   margin-top: 4px;
 }
 
@@ -607,7 +655,7 @@ const playScenario = async () => {
 .dot {
   width: 8px;
   height: 8px;
-  background: #94a3b8;
+  background: var(--c-text-light);
   border-radius: 50%;
   animation: typing 1.4s ease-in-out infinite;
 }
@@ -629,10 +677,24 @@ const playScenario = async () => {
   }
 }
 
+.typing-fade-enter-active {
+  transition: opacity 0.2s ease;
+}
+
+.typing-fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.typing-fade-enter-from,
+.typing-fade-leave-to {
+  opacity: 0;
+}
+
 .chat-input-area {
   padding: 16px 24px;
-  border-top: 1px solid #e2e8f0;
-  background: #fafafa;
+  border-top: 1px solid var(--c-border);
+  background: var(--c-bg-muted);
+  flex-shrink: 0;
 }
 
 .input-wrapper {
@@ -644,18 +706,18 @@ const playScenario = async () => {
 .chat-input {
   flex: 1;
   padding: 14px 18px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--c-border);
   border-radius: 12px;
   font-size: 14px;
   font-family: inherit;
   outline: none;
-  transition: all 0.2s;
-  background: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background: var(--c-bg-card);
 }
 
 .chat-input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--c-primary);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
 }
 
 .send-btn {
@@ -664,17 +726,21 @@ const playScenario = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-accent) 100%);
   color: #fff;
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .send-btn:hover:not(:disabled) {
+  opacity: 0.9;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.send-btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .send-btn:disabled {
@@ -691,23 +757,24 @@ const playScenario = async () => {
 
 .quick-hint {
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--c-text-light);
 }
 
 .quick-cmd {
-  padding: 6px 12px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  padding: 8px 14px;
+  background: var(--c-bg-card);
+  border: 1px solid var(--c-border);
   border-radius: 6px;
   font-size: 12px;
-  color: #64748b;
+  color: var(--c-text-muted);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  min-height: 36px;
 }
 
 .quick-cmd:hover {
-  border-color: #3b82f6;
-  color: #3b82f6;
-  background: #eff6ff;
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+  background: var(--c-primary-light);
 }
 </style>

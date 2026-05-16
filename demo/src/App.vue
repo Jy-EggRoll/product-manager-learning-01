@@ -6,7 +6,6 @@ import {
   BarChart3,
   Store,
   Bot,
-  GitBranch,
   Menu,
   X,
   Pill,
@@ -23,16 +22,14 @@ const iconComponents = {
   LayoutDashboard,
   BarChart3,
   Store,
-  Bot,
-  GitBranch
+  Bot
 }
 
 const navItems = [
   { path: '/overview', name: '项目概览', icon: 'LayoutDashboard' },
   { path: '/hq-dashboard', name: '总部运营', icon: 'BarChart3' },
   { path: '/store-dashboard', name: '门店工作台', icon: 'Store' },
-  { path: '/agent-chat', name: '智能体交互', icon: 'Bot' },
-  { path: '/flowcharts', name: '业务流程', icon: 'GitBranch' }
+  { path: '/agent-chat', name: '智能体交互', icon: 'Bot' }
 ]
 
 const currentRouteName = computed(() => {
@@ -66,7 +63,7 @@ const isActive = (path) => route.path === path
           <Pill class="logo-icon" />
           <span v-if="sidebarOpen" class="logo-text">药房智能体</span>
         </div>
-        <button class="mobile-close-btn" @click="mobileMenuOpen = false">
+        <button class="mobile-close-btn" @click="mobileMenuOpen = false" aria-label="关闭菜单">
           <X :size="20" />
         </button>
       </div>
@@ -94,10 +91,10 @@ const isActive = (path) => route.path === path
     <main class="main-content">
       <header class="top-header">
         <div class="header-left">
-          <button class="mobile-menu-btn" @click="mobileMenuOpen = true">
+          <button class="mobile-menu-btn" @click="mobileMenuOpen = true" aria-label="打开菜单">
             <Menu :size="24" />
           </button>
-          <button class="collapse-btn" @click="toggleSidebar">
+          <button class="collapse-btn" @click="toggleSidebar" aria-label="切换侧边栏">
             <Menu :size="20" />
           </button>
           <h1 class="page-title">{{ currentRouteName }}</h1>
@@ -125,17 +122,21 @@ const isActive = (path) => route.path === path
 .app-layout {
   display: flex;
   min-height: 100vh;
-  background-color: #f8fafc;
+  min-height: 100dvh;
+  background-color: var(--c-bg-page);
 }
 
 .sidebar {
   width: 240px;
-  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  background: linear-gradient(180deg, var(--c-bg-sidebar-start) 0%, var(--c-bg-sidebar-end) 100%);
   display: flex;
   flex-direction: column;
-  transition: width 0.3s ease;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: fixed;
+  left: 0;
+  top: 0;
   height: 100vh;
+  height: 100dvh;
   z-index: 100;
 }
 
@@ -153,8 +154,8 @@ const isActive = (path) => route.path === path
     left: 0;
     top: 0;
     transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    width: 240px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 260px;
   }
 }
 
@@ -165,7 +166,7 @@ const isActive = (path) => route.path === path
   z-index: 99;
   opacity: 0;
   visibility: hidden;
-  transition: all 0.3s ease;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 .mobile-overlay.is-open {
@@ -178,6 +179,7 @@ const isActive = (path) => route.path === path
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
 }
 
 .logo {
@@ -188,7 +190,7 @@ const isActive = (path) => route.path === path
 }
 
 .logo-icon {
-  color: #3b82f6;
+  color: var(--c-primary);
   flex-shrink: 0;
 }
 
@@ -202,9 +204,13 @@ const isActive = (path) => route.path === path
   display: none;
   background: none;
   border: none;
-  color: #94a3b8;
+  color: var(--c-text-light);
   cursor: pointer;
-  padding: 4px;
+  padding: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
 }
 
 @media (max-width: 768px) {
@@ -216,29 +222,32 @@ const isActive = (path) => route.path === path
 .sidebar-nav {
   flex: 1;
   padding: 12px 8px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 12px;
+  padding: 14px 12px;
   margin: 4px 0;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: #94a3b8;
+  color: var(--c-text-light);
+  min-height: 48px;
 }
 
 .nav-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.06);
   color: #e2e8f0;
 }
 
 .nav-item.is-active {
-  background: linear-gradient(90deg, rgba(59, 130, 246, 0.2) 0%, transparent 100%);
-  color: #3b82f6;
-  border-left: 3px solid #3b82f6;
+  background: linear-gradient(90deg, rgba(34, 197, 94, 0.2) 0%, transparent 100%);
+  color: var(--c-primary);
+  border-left: 3px solid var(--c-primary);
 }
 
 .nav-icon {
@@ -258,20 +267,21 @@ const isActive = (path) => route.path === path
 .sidebar-footer {
   padding: 16px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
 }
 
 .version-badge {
   display: inline-block;
   padding: 4px 8px;
-  background: rgba(59, 130, 246, 0.2);
-  color: #3b82f6;
+  background: rgba(34, 197, 94, 0.2);
+  color: var(--c-primary);
   border-radius: 4px;
   font-size: 12px;
   margin-bottom: 8px;
 }
 
 .footer-text {
-  color: #64748b;
+  color: var(--c-text-light);
   font-size: 12px;
 }
 
@@ -280,7 +290,9 @@ const isActive = (path) => route.path === path
   margin-left: 240px;
   display: flex;
   flex-direction: column;
-  transition: margin-left 0.3s ease;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 @media (max-width: 768px) {
@@ -301,8 +313,8 @@ const isActive = (path) => route.path === path
 
 .top-header {
   height: 64px;
-  background: #fff;
-  border-bottom: 1px solid #e2e8f0;
+  background: var(--c-bg-card);
+  border-bottom: 1px solid var(--c-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -310,6 +322,7 @@ const isActive = (path) => route.path === path
   position: sticky;
   top: 0;
   z-index: 50;
+  flex-shrink: 0;
 }
 
 .header-left {
@@ -322,9 +335,13 @@ const isActive = (path) => route.path === path
   display: none;
   background: none;
   border: none;
-  color: #64748b;
+  color: var(--c-text-secondary);
   cursor: pointer;
-  padding: 4px;
+  padding: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
 }
 
 @media (max-width: 768px) {
@@ -339,16 +356,18 @@ const isActive = (path) => route.path === path
   justify-content: center;
   background: none;
   border: none;
-  color: #64748b;
+  color: var(--c-text-muted);
   cursor: pointer;
-  padding: 8px;
+  padding: 10px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: 6px;
   transition: all 0.2s ease;
 }
 
 .collapse-btn:hover {
-  background: #f1f5f9;
-  color: #1e293b;
+  background: var(--c-bg-muted);
+  color: var(--c-text-primary);
 }
 
 @media (max-width: 768px) {
@@ -360,7 +379,7 @@ const isActive = (path) => route.path === path
 .page-title {
   font-size: 18px;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--c-text-primary);
   margin: 0;
 }
 
@@ -374,7 +393,7 @@ const isActive = (path) => route.path === path
   align-items: center;
   gap: 8px;
   padding: 6px 12px;
-  background: #f1f5f9;
+  background: var(--c-bg-muted);
   border-radius: 8px;
 }
 
@@ -384,7 +403,7 @@ const isActive = (path) => route.path === path
 
 .user-name {
   font-size: 14px;
-  color: #475569;
+  color: var(--c-text-secondary);
   font-weight: 500;
 }
 

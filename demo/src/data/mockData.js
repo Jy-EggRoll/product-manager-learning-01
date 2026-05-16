@@ -13,12 +13,12 @@ export const projectOverview = {
     { metric: '运营人力', value: '-40%', desc: '智能体自动执行' }
   ],
   businessProcess: [
-    { step: 1, name: '感知', desc: '捕获季节、天气、舆情、地理位置等外部信号', color: '#3b82f6' },
-    { step: 2, name: '洞察', desc: '会员画像与药品标签智能匹配', color: '#8b5cf6' },
-    { step: 3, name: '决策', desc: '策略规则引擎自动判定券包与时机', color: '#ec4899' },
-    { step: 4, name: '触达', desc: '多渠道智能推送（企微/短信/小程序）', color: '#f59e0b' },
-    { step: 5, name: '履约', desc: '门店承接，券码核销，补货确认', color: '#10b981' },
-    { step: 6, name: '复盘', desc: '转化分析，库存消化，规则迭代', color: '#06b6d4' }
+    { step: 1, name: '感知', desc: '捕获季节、天气、舆情、地理位置等外部信号', color: '#22c55e' },
+    { step: 2, name: '洞察', desc: '会员画像与药品标签智能匹配', color: '#10b981' },
+    { step: 3, name: '决策', desc: '策略规则引擎自动判定券包与时机', color: '#06b6d4' },
+    { step: 4, name: '触达', desc: '多渠道智能推送（企微/短信/小程序）', color: '#3b82f6' },
+    { step: 5, name: '履约', desc: '门店承接，券码核销，补货确认', color: '#8b5cf6' },
+    { step: 6, name: '复盘', desc: '转化分析，库存消化，规则迭代', color: '#f59e0b' }
   ],
   roles: [
     {
@@ -56,9 +56,9 @@ export const hqDashboardData = {
     { title: '带动销售额', value: '¥89.6万', trend: '+32%', trendUp: true, icon: 'TrendingUp' }
   ],
   activeSignals: [
-    { type: '天气', title: '寒潮预警', desc: '明日降温8-10°C，易感人群需关注', time: '10分钟前', severity: 'high', color: '#ef4444' },
-    { type: '舆情', title: '流感热点', desc: '本地流感病例上升30%，奥司他韦需求增加', time: '1小时前', severity: 'medium', color: '#f59e0b' },
-    { type: '季节', title: '花粉季来临', desc: '春季致敏花粉浓度升高，抗过敏药需求预期增长', time: '2小时前', severity: 'low', color: '#10b981' }
+    { type: '天气', title: '寒潮预警', desc: '明日降温8-10°C，易感人群需关注', time: '10分钟前', severity: 'high', color: '#dc2626' },
+    { type: '舆情', title: '流感热点', desc: '本地流感病例上升30%，奥司他韦需求增加', time: '1小时前', severity: 'medium', color: '#d97706' },
+    { type: '季节', title: '花粉季来临', desc: '春季致敏花粉浓度升高，抗过敏药需求预期增长', time: '2小时前', severity: 'low', color: '#16a34a' }
   ],
   recentActivities: [
     { id: 1, name: '降温关怀活动', status: 'running', type: '自动触发', triggeredBy: '天气信号', memberCount: 3256, converted: 412, conversionRate: '12.6%', startTime: '2026-05-14 08:00' },
@@ -69,8 +69,8 @@ export const hqDashboardData = {
   weeklyChart: {
     labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
     datasets: [
-      { label: '触达人数', data: [8500, 9200, 11500, 10800, 12400, 15200, 13800], color: '#3b82f6' },
-      { label: '转化人数', data: [950, 1120, 1420, 1350, 1580, 1950, 1760], color: '#10b981' }
+      { label: '触达人数', data: [8500, 9200, 11500, 10800, 12400, 15200, 13800], color: '#f97316' },
+      { label: '转化人数', data: [950, 1120, 1420, 1350, 1580, 1950, 1760], color: '#16a34a' }
     ]
   }
 }
@@ -148,162 +148,4 @@ export const agentChatData = {
       ]
     }
   ]
-}
-
-export const plantumlCode = {
-  businessFlow: `@startuml 药房智能体业务闭环流程图
-skinparam backgroundColor #f8fafc
-skinparam shadowing false
-skinparam arrowColor #475569
-
-title
-  <b><size:18>药房智能体业务闭环</size></b>
-  <size:12>感知-洞察-决策-触达-履约-复盘</size>
-end title
-
-partition "感知层 (外部信号)" #e0f2fe {
-  :季节变化;
-  :天气突变;
-  :舆情热点;
-  :地理位置;
-}
-
-partition "洞察层 (智能匹配)" #dbeafe {
-  :会员画像分析;
-  :用药周期计算;
-  :药品标签匹配;
-  :关联推荐计算;
-}
-
-partition "决策层 (智能体)" #fce7f3 {
-  :策略规则引擎;
-  :券包自动生成;
-  :时机判定;
-  :渠道选择;
-}
-
-partition "触达层 (多渠道)" #fef3c7 {
-  :企业微信;
-  :短信通知;
-  :小程序推送;
-  :APP消息;
-}
-
-partition "履约层 (门店)" #dcfce7 {
-  :会员到店;
-  :店员承接;
-  :核销券码;
-  :补货确认;
-}
-
-partition "复盘层 (数据闭环)" #f3e8ff {
-  :转化数据分析;
-  :库存消化统计;
-  :策略效果评估;
-  :规则迭代优化;
-}
-
-start
-:外部信号触发;
-:感知层捕获;
-:洞察层分析;
-:决策层判定;
-:触达层推送;
-:会员响应;
-:门店履约;
-:数据采集;
-:复盘优化;
-:形成闭环;
-end
-
-@enduml`,
-
-  collaboration: `@startuml 角色与智能体协作图
-skinparam backgroundColor #f8fafc
-skinparam shadowing false
-
-title
-  <b><size:18>角色与智能体协作关系</size></b>
-  <size:12>总部运营 + 门店店长 + 数字副店长</size>
-end title
-
-actor "总部运营专员" as HQ_OPERATOR
-actor "门店店长/店员" as STORE_STAFF
-actor "会员用户" as MEMBER
-
-boundary "运营控制台" as HQ_PORTAL
-boundary "店长工作台" as STORE_PORTAL
-boundary "企微侧边栏" as WECOM_SIDEBAR
-boundary "会员小程序" as MEMBER_MINIAPP
-
-control "数字副店长智能体" as AGENT
-
-== 总部运营视角 ==
-HQ_OPERATOR -> HQ_PORTAL : 配置策略规则
-HQ_PORTAL -> AGENT : 保存规则
-
-note over HQ_OPERATOR, AGENT
-  <b>协作模式：</b>
-  运营从"做活动"变成"养策略"
-  智能体负责执行，运营负责审核调优
-end note
-
-== 智能体自动运行 ==
-AGENT --> MEMBER_MINIAPP : 推送消息
-AGENT --> WECOM_SIDEBAR : 推送提醒
-
-== 门店视角 ==
-STORE_STAFF -> STORE_PORTAL : 查看今日任务
-STORE_STAFF -> WECOM_SIDEBAR : 接待会员
-
-note over STORE_STAFF, AGENT
-  <b>协作模式：</b>
-  智能体是店长的"外挂大脑"
-  每日重点触达名单、补货建议、话术提示
-end note
-
-@enduml`,
-
-  architecture: `@startuml 系统技术架构图
-skinparam backgroundColor #f8fafc
-skinparam shadowing false
-
-title
-  <b><size:18>药房智能体系统技术架构</size></b>
-  <size:12>四层架构设计</size>
-end title
-
-package "接入层" #dbeafe {
-  [运营管理后台] as HQ_ADMIN
-  [店长工作台] as STORE_PORTAL
-  [企微侧边栏] as WECOM_SIDEBAR
-  [会员小程序] as MEMBER_MINIAPP
-}
-
-package "应用层" #fce7f3 {
-  [智能体核心引擎] as AGENT_ENGINE
-  [策略规则引擎] as RULE_ENGINE
-  [活动编排引擎] as ACTIVITY_ENGINE
-  [数据分析中心] as DATA_ANALYTICS
-}
-
-package "能力层" #dcfce7 {
-  [会员画像服务] as MEMBER_PROFILE
-  [药品知识图谱] as DRUG_KG
-  [外部信号感知] as SIGNAL_PERCEIVE
-  [推荐算法服务] as RECOMMEND_SVC
-}
-
-package "数据层" #fef3c7 {
-  database "会员数据库" as MEMBER_DB
-  database "药品数据库" as DRUG_DB
-  database "策略数据库" as STRATEGY_DB
-}
-
-HQ_ADMIN --> AGENT_ENGINE
-STORE_PORTAL --> AGENT_ENGINE
-AGENT_ENGINE --> MEMBER_PROFILE
-MEMBER_PROFILE --> MEMBER_DB
-
-@enduml`
 }

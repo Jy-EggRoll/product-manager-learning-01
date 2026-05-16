@@ -9,13 +9,21 @@ import {
   Zap,
   Target,
   BarChart3,
-  Bot
+  Bot,
+  Eye,
+  Search,
+  BrainCircuit,
+  Send,
+  CheckCircle,
+  RefreshCw
 } from 'lucide-vue-next'
 import { projectOverview } from '@/data/mockData'
 
 const activeRole = ref(0)
 
 const overview = projectOverview
+
+const stepIcons = [Eye, Search, BrainCircuit, Send, CheckCircle, RefreshCw]
 
 const iconComponents = {
   TrendingUp,
@@ -81,7 +89,9 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
           :key="step.step"
           class="flow-step"
         >
-          <div class="step-number" :style="{ background: step.color }">{{ step.step }}</div>
+          <div class="step-icon-wrapper" :style="{ background: step.color }">
+            <component :is="stepIcons[index]" :size="18" />
+          </div>
           <div class="step-content">
             <div class="step-name" :style="{ color: step.color }">{{ step.name }}</div>
             <div class="step-desc">{{ step.desc }}</div>
@@ -156,7 +166,7 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
   grid-template-columns: 1fr 1fr;
   gap: 48px;
   align-items: center;
-  background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
   border-radius: 20px;
   padding: 48px;
   margin-bottom: 40px;
@@ -272,7 +282,7 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
 .section-title {
   font-size: 24px;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--c-text-primary);
   margin: 0 0 8px 0;
   display: flex;
   align-items: center;
@@ -280,7 +290,7 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
 }
 
 .section-desc {
-  color: #64748b;
+  color: var(--c-text-muted);
   margin: 0 0 24px 0;
   font-size: 15px;
 }
@@ -308,22 +318,22 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
 }
 
 .benefit-card {
-  background: #fff;
+  background: var(--c-bg-card);
   border-radius: 16px;
   padding: 24px;
-  border: 1px solid #e2e8f0;
-  transition: all 0.3s ease;
+  border: 1px solid var(--c-border);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
 }
 
 .benefit-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
 }
 
 .benefit-icon {
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-accent) 100%);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -335,20 +345,20 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
 .benefit-value {
   font-size: 28px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--c-text-primary);
   margin-bottom: 4px;
 }
 
 .benefit-metric {
   font-size: 14px;
   font-weight: 500;
-  color: #3b82f6;
+  color: var(--c-primary);
   margin-bottom: 8px;
 }
 
 .benefit-desc {
   font-size: 13px;
-  color: #64748b;
+  color: var(--c-text-muted);
 }
 
 .flow-section {
@@ -361,6 +371,7 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
   gap: 12px;
   overflow-x: auto;
   padding: 8px 4px;
+  -webkit-overflow-scrolling: touch;
 }
 
 @media (max-width: 768px) {
@@ -373,13 +384,19 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  background: #fff;
+  background: var(--c-bg-card);
   border-radius: 12px;
   padding: 20px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--c-border);
   flex: 1;
   min-width: 160px;
   position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.flow-step:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
 }
 
 @media (max-width: 768px) {
@@ -389,7 +406,7 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
   }
 }
 
-.step-number {
+.step-icon-wrapper {
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -397,7 +414,6 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-weight: 600;
   flex-shrink: 0;
 }
 
@@ -409,12 +425,12 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
 
 .step-desc {
   font-size: 12px;
-  color: #64748b;
+  color: var(--c-text-muted);
   line-height: 1.5;
 }
 
 .step-arrow {
-  color: #94a3b8;
+  color: var(--c-text-light);
   position: absolute;
   right: -16px;
   top: 50%;
@@ -441,6 +457,7 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
   margin-bottom: 24px;
   overflow-x: auto;
   padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .role-tab {
@@ -448,8 +465,8 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
   align-items: center;
   gap: 10px;
   padding: 14px 20px;
-  background: #fff;
-  border: 2px solid #e2e8f0;
+  background: var(--c-bg-card);
+  border: 2px solid var(--c-border);
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -458,12 +475,12 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
 }
 
 .role-tab:hover {
-  border-color: #cbd5e1;
+  border-color: var(--c-border-light);
 }
 
 .role-tab.is-active {
-  border-color: #3b82f6;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+  border-color: var(--c-primary);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
 }
 
 .tab-avatar {
@@ -472,13 +489,13 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
 
 .tab-name {
   font-weight: 600;
-  color: #334155;
+  color: var(--c-text-secondary);
 }
 
 .role-detail {
-  background: #fff;
+  background: var(--c-bg-card);
   border-radius: 16px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--c-border);
   overflow: hidden;
 }
 
@@ -487,8 +504,8 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
   align-items: center;
   gap: 16px;
   padding: 24px;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border-bottom: 1px solid #e2e8f0;
+  background: linear-gradient(135deg, var(--c-bg-muted) 0%, var(--c-bg-page) 100%);
+  border-bottom: 1px solid var(--c-border);
 }
 
 .role-avatar-large {
@@ -498,7 +515,7 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fff;
+  background: var(--c-bg-card);
   border-radius: 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
@@ -506,20 +523,20 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
 .role-name {
   font-size: 20px;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--c-text-primary);
   margin: 0 0 4px 0;
 }
 
 .role-count {
   font-size: 14px;
-  color: #64748b;
+  color: var(--c-text-muted);
 }
 
 .role-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1px;
-  background: #e2e8f0;
+  background: var(--c-border);
 }
 
 @media (max-width: 1024px) {
@@ -529,21 +546,21 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
 }
 
 .role-card {
-  background: #fff;
+  background: var(--c-bg-card);
   padding: 24px;
 }
 
 .role-card-title {
   font-size: 14px;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--c-text-light);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin: 0 0 16px 0;
 }
 
 .pain-title {
-  color: #ef4444;
+  color: var(--c-danger);
 }
 
 .role-list {
@@ -558,30 +575,30 @@ const benefitIcons = ['TrendingUp', 'Clock', 'DollarSign', 'Users']
   gap: 10px;
   padding: 8px 0;
   font-size: 14px;
-  color: #334155;
+  color: var(--c-text-secondary);
   line-height: 1.5;
 }
 
 .list-dot {
   width: 6px;
   height: 6px;
-  background: #3b82f6;
+  background: var(--c-primary);
   border-radius: 50%;
   margin-top: 7px;
   flex-shrink: 0;
 }
 
 .pain-dot {
-  background: #ef4444;
+  background: var(--c-danger);
 }
 
 .collaboration-card {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.02) 0%, rgba(139, 92, 246, 0.02) 100%);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.02) 0%, rgba(16, 185, 129, 0.02) 100%);
 }
 
 .collaboration-text {
   font-size: 15px;
-  color: #334155;
+  color: var(--c-text-secondary);
   line-height: 1.8;
   margin: 0;
 }

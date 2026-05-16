@@ -1,4 +1,4 @@
-<script setup>import { ref } from 'vue'
+<script setup>import { ref, nextTick } from 'vue'
 import {
   Store,
   Users,
@@ -16,7 +16,11 @@ import {
   Minus,
   Clock,
   Check,
-  X
+  X,
+  HeartPulse,
+  Droplets,
+  Wind,
+  Activity
 } from 'lucide-vue-next'
 import { storeDashboardData } from '@/data/mockData'
 
@@ -42,11 +46,11 @@ const getTrendIcon = (trend) => {
 const getTrendColor = (trend) => {
   switch (trend) {
     case 'up':
-      return '#10b981'
+      return '#16a34a'
     case 'down':
-      return '#ef4444'
+      return '#dc2626'
     default:
-      return '#64748b'
+      return '#6b7280'
   }
 }
 
@@ -74,6 +78,13 @@ const getRiskBadge = (risk) => {
     low: { class: 'risk-low', text: '低优先级' }
   }
   return badges[risk] || badges.low
+}
+
+const diseaseIcons = {
+  '高血压': HeartPulse,
+  '糖尿病': Droplets,
+  '过敏性鼻炎': Wind,
+  '高血脂': Activity
 }
 </script>
 
@@ -166,7 +177,14 @@ const getRiskBadge = (risk) => {
                   {{ member.name }}
                   <span class="member-age">{{ member.age }}岁</span>
                 </div>
-                <div class="member-tag">{{ member.tag }}患者</div>
+                <div class="member-tag">
+                  <component
+                    :is="diseaseIcons[member.tag] || Activity"
+                    :size="12"
+                    class="disease-icon"
+                  />
+                  {{ member.tag }}患者
+                </div>
               </div>
               <span class="risk-badge" :class="getRiskBadge(member.risk).class">
                 {{ getRiskBadge(member.risk).text }}
@@ -202,7 +220,7 @@ const getRiskBadge = (risk) => {
                   <MessageSquare :size="16" />
                   发送消息
                 </button>
-                <button class="action-btn">
+                <button class="action-btn secondary">
                   <Phone :size="16" />
                   电话提醒
                 </button>
@@ -222,7 +240,7 @@ const getRiskBadge = (risk) => {
           <button v-if="!showReplenishConfirm" class="confirm-all-btn" @click="confirmReplenish">
             确认全部
           </button>
-          <CheckCircle v-else :size="20" style="color: #10b981" />
+          <CheckCircle v-else :size="20" style="color: #16a34a" />
         </div>
         <div class="replenish-list">
           <div
@@ -263,9 +281,9 @@ const getRiskBadge = (risk) => {
               <div class="stock-item suggested">
                 <div class="stock-label">建议补货</div>
                 <div class="adjust-group">
-                  <button class="adjust-btn" @click="adjustReplenish(item, -10)">-</button>
+                  <button class="adjust-btn" @click.stop="adjustReplenish(item, -10)">-</button>
                   <span class="adjust-value">{{ item.adjustedAmount }}</span>
-                  <button class="adjust-btn" @click="adjustReplenish(item, 10)">+</button>
+                  <button class="adjust-btn" @click.stop="adjustReplenish(item, 10)">+</button>
                 </div>
               </div>
               <div v-if="item.confirmed" class="confirmed-badge">
@@ -275,10 +293,12 @@ const getRiskBadge = (risk) => {
             </div>
           </div>
         </div>
-        <div v-if="showReplenishConfirm" class="success-toast">
-          <CheckCircle :size="20" />
-          补货单已确认，已同步至采购系统
-        </div>
+        <transition name="toast">
+          <div v-if="showReplenishConfirm" class="success-toast">
+            <CheckCircle :size="20" />
+            补货单已确认，已同步至采购系统
+          </div>
+        </transition>
       </div>
     </div>
   </div>
@@ -290,7 +310,7 @@ const getRiskBadge = (risk) => {
 }
 
 .store-info-card {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
   border-radius: 16px;
   padding: 24px;
   margin-bottom: 20px;
@@ -316,12 +336,12 @@ const getRiskBadge = (risk) => {
 .store-icon {
   width: 56px;
   height: 56px;
-  background: rgba(59, 130, 246, 0.2);
+  background: rgba(34, 197, 94, 0.2);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #3b82f6;
+  color: var(--c-primary);
 }
 
 .store-name {
@@ -333,7 +353,7 @@ const getRiskBadge = (risk) => {
 
 .store-address {
   font-size: 14px;
-  color: #94a3b8;
+  color: #a7f3d0;
   margin: 0;
 }
 
@@ -356,7 +376,7 @@ const getRiskBadge = (risk) => {
 }
 
 .stat-icon {
-  color: #60a5fa;
+  color: #4ade80;
 }
 
 .stat-value {
@@ -367,7 +387,7 @@ const getRiskBadge = (risk) => {
 
 .stat-label {
   font-size: 12px;
-  color: #94a3b8;
+  color: #a7f3d0;
 }
 
 .today-overview {
@@ -390,11 +410,17 @@ const getRiskBadge = (risk) => {
 }
 
 .overview-card {
-  background: #fff;
+  background: var(--c-bg-card);
   border-radius: 12px;
   padding: 20px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--c-border);
   text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.overview-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
 }
 
 .overview-icon {
@@ -409,7 +435,7 @@ const getRiskBadge = (risk) => {
 }
 
 .overview-icon.visitors {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
 }
 
 .overview-icon.coupons {
@@ -417,7 +443,7 @@ const getRiskBadge = (risk) => {
 }
 
 .overview-icon.new-members {
-  background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
 }
 
 .overview-icon.sales {
@@ -427,13 +453,13 @@ const getRiskBadge = (risk) => {
 .overview-value {
   font-size: 24px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--c-text-primary);
   margin-bottom: 4px;
 }
 
 .overview-label {
   font-size: 13px;
-  color: #64748b;
+  color: var(--c-text-muted);
 }
 
 .main-grid {
@@ -458,25 +484,25 @@ const getRiskBadge = (risk) => {
 .section-title {
   font-size: 16px;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--c-text-primary);
   margin: 0;
 }
 
 .section-badge {
   font-size: 12px;
   font-weight: 500;
-  color: #3b82f6;
-  background: #dbeafe;
+  color: var(--c-primary);
+  background: var(--c-primary-lighter);
   padding: 2px 10px;
   border-radius: 20px;
 }
 
 .priority-section,
 .replenish-section {
-  background: #fff;
+  background: var(--c-bg-card);
   border-radius: 16px;
   padding: 24px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--c-border);
 }
 
 .members-list {
@@ -486,21 +512,21 @@ const getRiskBadge = (risk) => {
 }
 
 .member-card {
-  background: #f8fafc;
+  background: var(--c-bg-page);
   border-radius: 12px;
   padding: 16px;
-  border: 1px solid #e2e8f0;
-  transition: all 0.2s;
+  border: 1px solid var(--c-border);
+  transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .member-card:hover {
-  border-color: #cbd5e1;
+  border-color: var(--c-border-light);
 }
 
 .member-card.is-selected {
-  border-color: #3b82f6;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.02) 0%, rgba(139, 92, 246, 0.02) 100%);
+  border-color: var(--c-primary);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.02) 0%, rgba(16, 185, 129, 0.02) 100%);
 }
 
 .member-header {
@@ -516,7 +542,7 @@ const getRiskBadge = (risk) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fff;
+  background: var(--c-bg-card);
   border-radius: 50%;
 }
 
@@ -526,20 +552,28 @@ const getRiskBadge = (risk) => {
 
 .member-name {
   font-weight: 600;
-  color: #1e293b;
+  color: var(--c-text-primary);
   font-size: 14px;
 }
 
 .member-age {
   font-size: 12px;
-  color: #64748b;
+  color: var(--c-text-muted);
   font-weight: 400;
 }
 
 .member-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: 12px;
-  color: #64748b;
+  color: var(--c-text-muted);
   margin-top: 2px;
+}
+
+.disease-icon {
+  color: var(--c-primary);
+  flex-shrink: 0;
 }
 
 .risk-badge {
@@ -547,31 +581,32 @@ const getRiskBadge = (risk) => {
   font-weight: 600;
   padding: 4px 10px;
   border-radius: 20px;
+  white-space: nowrap;
 }
 
 .risk-high {
-  background: #fef2f2;
-  color: #dc2626;
+  background: var(--c-danger-bg);
+  color: var(--c-danger);
 }
 
 .risk-medium {
-  background: #fffbeb;
-  color: #b45309;
+  background: var(--c-warning-bg);
+  color: var(--c-warning);
 }
 
 .risk-low {
-  background: #f0fdf4;
-  color: #16a34a;
+  background: var(--c-success-bg);
+  color: var(--c-success);
 }
 
 .member-expand {
-  color: #94a3b8;
+  color: var(--c-text-light);
 }
 
 .member-detail {
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--c-border);
 }
 
 .detail-row {
@@ -579,12 +614,12 @@ const getRiskBadge = (risk) => {
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  color: #64748b;
+  color: var(--c-text-muted);
   margin-bottom: 8px;
 }
 
 .detail-row.highlight {
-  color: #dc2626;
+  color: var(--c-danger);
   font-weight: 500;
 }
 
@@ -595,7 +630,7 @@ const getRiskBadge = (risk) => {
 .section-label {
   font-size: 12px;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--c-text-light);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 8px;
@@ -610,8 +645,8 @@ const getRiskBadge = (risk) => {
 .drug-tag {
   font-size: 12px;
   padding: 4px 12px;
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--c-primary-lighter);
+  color: var(--c-primary-dark);
   border-radius: 4px;
   font-weight: 500;
 }
@@ -643,46 +678,48 @@ const getRiskBadge = (risk) => {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 10px 16px;
+  padding: 12px 16px;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
-  border: 1px solid #e2e8f0;
-  background: #fff;
-  color: #475569;
+  border: 1px solid var(--c-border);
+  background: var(--c-bg-card);
+  color: var(--c-text-secondary);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  min-height: 44px;
 }
 
 .action-btn:hover {
-  border-color: #cbd5e1;
-  background: #f8fafc;
+  border-color: var(--c-border-light);
+  background: var(--c-bg-page);
 }
 
 .action-btn.primary {
-  background: #3b82f6;
+  background: var(--c-primary);
   color: #fff;
   border: none;
 }
 
 .action-btn.primary:hover {
-  background: #2563eb;
+  background: var(--c-primary-dark);
 }
 
 .confirm-all-btn {
   padding: 8px 16px;
-  background: #3b82f6;
+  background: var(--c-primary);
   color: #fff;
   border: none;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s ease;
+  min-height: 44px;
 }
 
 .confirm-all-btn:hover {
-  background: #2563eb;
+  background: var(--c-primary-dark);
 }
 
 .replenish-list {
@@ -692,16 +729,16 @@ const getRiskBadge = (risk) => {
 }
 
 .replenish-item {
-  background: #f8fafc;
+  background: var(--c-bg-page);
   border-radius: 12px;
   padding: 16px;
-  border: 1px solid #e2e8f0;
-  transition: all 0.2s;
+  border: 1px solid var(--c-border);
+  transition: all 0.3s ease;
 }
 
 .replenish-item.is-confirmed {
-  border-color: #10b981;
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(5, 150, 105, 0.05) 100%);
+  border-color: var(--c-success);
+  background: linear-gradient(135deg, rgba(22, 163, 74, 0.05) 0%, rgba(21, 128, 61, 0.05) 100%);
 }
 
 .item-main {
@@ -713,13 +750,13 @@ const getRiskBadge = (risk) => {
 
 .item-name {
   font-weight: 600;
-  color: #1e293b;
+  color: var(--c-text-primary);
   font-size: 14px;
 }
 
 .item-category {
   font-size: 12px;
-  color: #64748b;
+  color: var(--c-text-muted);
   margin-top: 2px;
 }
 
@@ -744,22 +781,22 @@ const getRiskBadge = (risk) => {
 
 .stock-label {
   font-size: 11px;
-  color: #94a3b8;
+  color: var(--c-text-light);
   margin-bottom: 4px;
 }
 
 .stock-value {
   font-size: 14px;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--c-text-primary);
 }
 
 .stock-value.is-low {
-  color: #ef4444;
+  color: var(--c-danger);
 }
 
 .stock-arrow {
-  color: #94a3b8;
+  color: var(--c-text-light);
   font-size: 14px;
 }
 
@@ -770,28 +807,28 @@ const getRiskBadge = (risk) => {
 }
 
 .adjust-btn {
-  width: 28px;
-  height: 28px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: var(--c-bg-card);
+  border: 1px solid var(--c-border);
   border-radius: 6px;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
 .adjust-btn:hover {
-  background: #f1f5f9;
+  background: var(--c-bg-muted);
 }
 
 .adjust-value {
   font-size: 16px;
   font-weight: 600;
-  color: #3b82f6;
+  color: var(--c-primary);
   min-width: 32px;
   text-align: center;
 }
@@ -802,9 +839,9 @@ const getRiskBadge = (risk) => {
   gap: 4px;
   font-size: 13px;
   font-weight: 600;
-  color: #10b981;
+  color: var(--c-success);
   padding: 4px 12px;
-  background: #dcfce7;
+  background: var(--c-success-bg);
   border-radius: 20px;
   margin-left: auto;
 }
@@ -815,22 +852,40 @@ const getRiskBadge = (risk) => {
   justify-content: center;
   gap: 8px;
   padding: 12px;
-  background: #dcfce7;
-  color: #16a34a;
+  background: var(--c-success-bg);
+  color: var(--c-success);
   border-radius: 8px;
   margin-top: 16px;
   font-weight: 500;
-  animation: fadeIn 0.3s ease;
 }
 
-@keyframes fadeIn {
+.toast-enter-active {
+  animation: toastIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toast-leave-active {
+  animation: toastOut 0.25s ease-in;
+}
+
+@keyframes toastIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(10px) scale(0.96);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toastOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.96);
   }
 }
 </style>

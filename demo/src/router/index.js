@@ -29,12 +29,6 @@ const routes = [
     component: () => import('@/views/AgentChat.vue'),
     meta: { title: '智能体交互演示', icon: 'Bot' }
   },
-  {
-    path: '/flowcharts',
-    name: 'Flowcharts',
-    component: () => import('@/views/Flowcharts.vue'),
-    meta: { title: '业务流程图', icon: 'GitBranch' }
-  }
 ]
 
 const router = createRouter({

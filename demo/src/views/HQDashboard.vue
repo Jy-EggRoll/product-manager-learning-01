@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import {
   Activity,
   Users,
@@ -11,14 +11,16 @@ import {
   Clock,
   ChevronRight,
   MoreHorizontal,
-  Eye
+  Eye,
+  Thermometer,
+  Newspaper,
+  Flower2
 } from 'lucide-vue-next'
-import { Bar, Line } from 'vue-chartjs'
+import { Line } from 'vue-chartjs'
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  BarElement,
   PointElement,
   LineElement,
   Title,
@@ -31,7 +33,6 @@ import { hqDashboardData } from '@/data/mockData'
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  BarElement,
   PointElement,
   LineElement,
   Title,
@@ -41,22 +42,6 @@ ChartJS.register(
 )
 
 const data = hqDashboardData
-
-const chartOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      display: true,
-      position: 'top'
-    }
-  },
-  scales: {
-    y: {
-      beginAtZero: true
-    }
-  }
-}
 
 const lineChartOptions = {
   responsive: true,
@@ -83,8 +68,8 @@ const weeklyChartData = {
   datasets: data.weeklyChart.datasets.map((ds, idx) => ({
     label: ds.label,
     data: ds.data,
-    borderColor: ds.color,
-    backgroundColor: idx === 0 ? 'rgba(59, 130, 246, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+    borderColor: idx === 0 ? '#22c55e' : '#10b981',
+    backgroundColor: idx === 0 ? 'rgba(34, 197, 94, 0.1)' : 'rgba(16, 185, 129, 0.1)',
     fill: true,
     tension: 0.4,
     pointRadius: 4,
@@ -97,6 +82,12 @@ const cardIcons = {
   Users,
   CheckCircle,
   TrendingUp
+}
+
+const signalIcons = {
+  weather: Thermometer,
+  yq: Newspaper,
+  season: Flower2
 }
 
 const getSeverityBadge = (severity) => {
@@ -154,13 +145,19 @@ const getStatusBadge = (status) => {
             :style="{ borderLeftColor: signal.color }"
           >
             <div class="signal-header">
-              <span class="signal-type">{{ signal.type }}</span>
+              <span class="signal-type">
+                <component
+                  :is="signalIcons[signal.type === '天气' ? 'weather' : signal.type === '舆情' ? 'yq' : 'season']"
+                  :size="12"
+                />
+                {{ signal.type }}
+              </span>
               <span class="signal-time">{{ signal.time }}</span>
             </div>
             <div class="signal-title">
-              <AlertTriangle v-if="signal.severity === 'high'" :size="16" :style="{ color: '#ef4444' }" />
-              <AlertCircle v-else-if="signal.severity === 'medium'" :size="16" :style="{ color: '#f59e0b' }" />
-              <CheckCircle2 v-else :size="16" :style="{ color: '#10b981' }" />
+              <AlertTriangle v-if="signal.severity === 'high'" :size="16" :style="{ color: '#dc2626' }" />
+              <AlertCircle v-else-if="signal.severity === 'medium'" :size="16" :style="{ color: '#d97706' }" />
+              <CheckCircle2 v-else :size="16" :style="{ color: '#16a34a' }" />
               <span>{{ signal.title }}</span>
               <span class="severity-badge" :class="getSeverityBadge(signal.severity).class">
                 {{ getSeverityBadge(signal.severity).text }}
@@ -269,10 +266,16 @@ const getStatusBadge = (status) => {
 }
 
 .stat-card {
-  background: #fff;
+  background: var(--c-bg-card);
   border-radius: 16px;
   padding: 24px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--c-border);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
 }
 
 .card-header {
@@ -283,29 +286,29 @@ const getStatusBadge = (status) => {
 }
 
 .card-icon {
-  color: #3b82f6;
+  color: var(--c-primary);
 }
 
 .card-trend {
   font-size: 13px;
   font-weight: 500;
-  color: #64748b;
+  color: var(--c-text-muted);
 }
 
 .card-trend.is-up {
-  color: #10b981;
+  color: var(--c-success);
 }
 
 .card-value {
   font-size: 28px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--c-text-primary);
   margin-bottom: 4px;
 }
 
 .card-title {
   font-size: 14px;
-  color: #64748b;
+  color: var(--c-text-muted);
 }
 
 .main-grid {
@@ -331,7 +334,7 @@ const getStatusBadge = (status) => {
 .section-title {
   font-size: 16px;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--c-text-primary);
   margin: 0;
 }
 
@@ -341,25 +344,26 @@ const getStatusBadge = (status) => {
   gap: 4px;
   background: none;
   border: none;
-  color: #3b82f6;
+  color: var(--c-primary);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 6px;
   transition: background 0.2s;
+  min-height: 36px;
 }
 
 .view-all-btn:hover {
-  background: #eff6ff;
+  background: var(--c-primary-light);
 }
 
 .signals-section,
 .chart-section {
-  background: #fff;
+  background: var(--c-bg-card);
   border-radius: 16px;
   padding: 24px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--c-border);
 }
 
 .signals-list {
@@ -370,7 +374,7 @@ const getStatusBadge = (status) => {
 
 .signal-card {
   padding: 16px;
-  background: #f8fafc;
+  background: var(--c-bg-page);
   border-radius: 12px;
   border-left: 3px solid;
 }
@@ -383,17 +387,20 @@ const getStatusBadge = (status) => {
 }
 
 .signal-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 12px;
   font-weight: 500;
-  color: #64748b;
-  background: #e2e8f0;
+  color: var(--c-text-muted);
+  background: var(--c-border);
   padding: 2px 8px;
   border-radius: 4px;
 }
 
 .signal-time {
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--c-text-light);
 }
 
 .signal-title {
@@ -402,7 +409,7 @@ const getStatusBadge = (status) => {
   gap: 8px;
   margin-bottom: 8px;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--c-text-primary);
   font-size: 14px;
 }
 
@@ -415,23 +422,23 @@ const getStatusBadge = (status) => {
 }
 
 .badge-high {
-  background: #fef2f2;
-  color: #dc2626;
+  background: var(--c-danger-bg);
+  color: var(--c-danger);
 }
 
 .badge-medium {
-  background: #fffbeb;
-  color: #d97706;
+  background: var(--c-warning-bg);
+  color: var(--c-warning);
 }
 
 .badge-low {
-  background: #f0fdf4;
-  color: #16a34a;
+  background: var(--c-success-bg);
+  color: var(--c-success);
 }
 
 .signal-desc {
   font-size: 13px;
-  color: #64748b;
+  color: var(--c-text-muted);
   margin: 0;
   line-height: 1.5;
 }
@@ -441,10 +448,11 @@ const getStatusBadge = (status) => {
 }
 
 .activities-section {
-  background: #fff;
+  background: var(--c-bg-card);
   border-radius: 16px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--c-border);
   overflow: hidden;
+  transition: box-shadow 0.2s ease;
 }
 
 .activities-section .section-header {
@@ -464,24 +472,27 @@ const getStatusBadge = (status) => {
   border: none;
   cursor: pointer;
   transition: all 0.2s;
+  min-height: 44px;
 }
 
 .action-btn.primary {
-  background: #3b82f6;
+  background: var(--c-primary);
   color: #fff;
 }
 
 .action-btn.primary:hover {
-  background: #2563eb;
+  background: var(--c-primary-dark);
 }
 
 .table-wrapper {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .activities-table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 700px;
 }
 
 .activities-table th {
@@ -489,26 +500,26 @@ const getStatusBadge = (status) => {
   padding: 16px 24px;
   font-size: 12px;
   font-weight: 600;
-  color: #64748b;
+  color: var(--c-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 1px solid #e2e8f0;
-  background: #f8fafc;
+  border-bottom: 1px solid var(--c-border);
+  background: var(--c-bg-muted);
 }
 
 .activities-table td {
   padding: 16px 24px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--c-border);
   vertical-align: middle;
 }
 
 .activities-table tbody tr:hover {
-  background: #f8fafc;
+  background: var(--c-bg-muted);
 }
 
 .activity-name {
   font-weight: 600;
-  color: #1e293b;
+  color: var(--c-text-primary);
   font-size: 14px;
 }
 
@@ -517,7 +528,7 @@ const getStatusBadge = (status) => {
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: #64748b;
+  color: var(--c-text-muted);
   margin-top: 4px;
 }
 
@@ -530,18 +541,18 @@ const getStatusBadge = (status) => {
 }
 
 .status-running {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--c-primary-lighter);
+  color: var(--c-primary-dark);
 }
 
 .status-completed {
-  background: #dcfce7;
-  color: #16a34a;
+  background: var(--c-success-bg);
+  color: var(--c-success);
 }
 
 .status-pending {
-  background: #fef3c7;
-  color: #b45309;
+  background: var(--c-warning-bg);
+  color: var(--c-warning);
 }
 
 .type-badge {
@@ -550,13 +561,13 @@ const getStatusBadge = (status) => {
   border-radius: 4px;
   font-size: 12px;
   font-weight: 500;
-  background: #f1f5f9;
-  color: #475569;
+  background: var(--c-bg-muted);
+  color: var(--c-text-secondary);
 }
 
 .number-cell {
   font-weight: 500;
-  color: #1e293b;
+  color: var(--c-text-primary);
 }
 
 .conversion-rate {
@@ -568,33 +579,34 @@ const getStatusBadge = (status) => {
 .rate-bar {
   width: 80px;
   height: 6px;
-  background: #e2e8f0;
+  background: var(--c-border);
   border-radius: 3px;
   overflow: hidden;
 }
 
 .rate-fill {
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  background: linear-gradient(90deg, var(--c-primary), var(--c-accent));
   border-radius: 3px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .icon-btn {
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   background: none;
   border: none;
-  color: #64748b;
+  color: var(--c-text-muted);
   cursor: pointer;
   border-radius: 6px;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
 .icon-btn:hover {
-  background: #f1f5f9;
-  color: #1e293b;
+  background: var(--c-bg-muted);
+  color: var(--c-text-primary);
 }
 </style>

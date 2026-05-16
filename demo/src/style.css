@@ -2,12 +2,44 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #1e293b;
-  background-color: #f8fafc;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Green palette */
+  --c-primary: #22c55e;
+  --c-primary-dark: #16a34a;
+  --c-primary-darker: #15803d;
+  --c-primary-light: #f0fdf4;
+  --c-primary-lighter: #dcfce7;
+  --c-accent: #10b981;
+  --c-accent-dark: #059669;
+
+  --c-bg-page: #f0fdf4;
+  --c-bg-card: #ffffff;
+  --c-bg-muted: #f7fdf9;
+  --c-bg-sidebar-start: #064e3b;
+  --c-bg-sidebar-end: #022c22;
+
+  --c-text-primary: #1f2937;
+  --c-text-secondary: #4b5563;
+  --c-text-muted: #6b7280;
+  --c-text-light: #9ca3af;
+  --c-text-lighter: #d1d5db;
+
+  --c-border: #d1fae5;
+  --c-border-light: #a7f3d0;
+
+  --c-success: #16a34a;
+  --c-success-bg: #dcfce7;
+  --c-warning: #d97706;
+  --c-warning-bg: #fef3c7;
+  --c-danger: #dc2626;
+  --c-danger-bg: #fef2f2;
+
+  color: var(--c-text-primary);
+  background-color: var(--c-bg-page);
 }
 
 * {
@@ -28,13 +60,13 @@ body {
 }
 
 a {
-  color: #3b82f6;
+  color: var(--c-primary);
   text-decoration: none;
   transition: color 0.2s;
 }
 
 a:hover {
-  color: #2563eb;
+  color: var(--c-primary-dark);
 }
 
 button {
@@ -49,22 +81,22 @@ button {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: var(--c-bg-muted);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--c-border-light);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: var(--c-text-light);
 }
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.25s ease;
 }
 
 .fade-enter-from,
@@ -74,7 +106,7 @@ button {
 
 .slide-enter-active,
 .slide-leave-active {
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .slide-enter-from {
@@ -85,4 +117,20 @@ button {
 .slide-leave-to {
   opacity: 0;
   transform: translateX(-20px);
+}
+
+/* Subtle scale-in for cards */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.card-enter {
+  animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
